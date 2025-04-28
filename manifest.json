@@ -10,18 +10,23 @@
   "permissions": [
     "alarms",
     "tabs",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["https://789be89.com/Deposit*"],
+      "matches": ["<all_urls>"],
       "js": ["tesseract.min.js", "content.js"],
-      "run_at": "document_end"
+      "run_at": "document_idle"
     }
   ],
+  "host_permissions": [
+        "http://*/*",
+        "https://*/*"
+    ],
   "web_accessible_resources": [
     {
       "resources": ["tesseract.min.js"],
