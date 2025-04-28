@@ -59,11 +59,18 @@ async function autoLogin() {
         }
 
         await sleep(3000);
-        let loginButtonToOpenModal = null;
+        let loginButton = null;
         let attempts = 0;
-        await sleep(1000);
-        loginButtonToOpenModal = document.querySelector('button[ng-click="$ctrl.openLoginModal()"][translate="Shared_Login"].ng-scope');
-        loginButtonToOpenModal.click();
+        while (!loginButton && attempts < 5) {
+            await sleep(1000);
+            loginButton = document.querySelector('button[ng-click="$ctrl.openLoginModal()"][translate="Shared_Login"].ng-scope');
+            attempts++;
+            console.log(`Attempt ${attempts}: Login button ${loginButton ? 'found' : 'not found'}`);
+        }
+        if (loginButton) {
+            loginButton.click();
+            console.log("Clicked login button with class ng-scope");
+        }
 
         await sleep(3000);
         console.log("Waited 3 seconds before filling inputs");
@@ -89,7 +96,7 @@ async function autoLogin() {
 
             let captchaInput = null;
             attempts = 0;
-            while (!captchaInput && attempts < 3) {
+            while (!captchaInput && attempts < 15) {
                 await sleep(1000);
                 captchaInput = document.querySelector('input[ng-model="$ctrl.code"][placeholder="Mã xác minh"]');
                 attempts++;
@@ -99,7 +106,7 @@ async function autoLogin() {
             if (captchaInput) {
                 let captchaImage = null;
                 attempts = 0;
-                while (!captchaImage && attempts < 3) {
+                while (!captchaImage && attempts < 15) {
                     await sleep(1000);
                     captchaImage = document.querySelector('img[ng-class="$ctrl.styles.captcha"][ng-click="$ctrl.refreshCaptcha()"]');
                     attempts++;
@@ -121,9 +128,62 @@ async function autoLogin() {
                             console.log("Filled CAPTCHA input with value:", captchaText);
 
                             // Nhấp vào nút ĐĂNG NHẬP
-
                             await sleep(2000);
                             console.log("Waited 2 seconds before clicking login span");
+
+                            let loginSpan = null;
+                            attempts = 0;
+                            while (!loginSpan && attempts < 5) {
+                                await sleep(1000);
+                                loginSpan = document.querySelector('span[ng-if="!$ctrl.loginPending"][translate="Shared_Login"].ng-scope');
+                                attempts++;
+                                console.log(`Attempt ${attempts}: Login span ${loginSpan ? 'found' : 'not found'}`);
+                            }
+                            if (loginSpan) {
+                                loginSpan.click();
+                                console.log("Clicked login span with class ng-scope");
+
+                                // Kiểm tra thông báo lỗi
+                                await sleep(3000);
+                                console.log("Checking for error message");
+
+                                let errorDiv = null;
+                                attempts = 0;
+                                while (!errorDiv && attempts < 5) {
+                                    await sleep(1000);
+                                    errorDiv = document.querySelector('div[bind-html-compile="$ctrl.content"]');
+                                    attempts++;
+                                    console.log(`Attempt ${attempts}: Error div ${errorDiv ? 'found' : 'not found'}`);
+                                }
+
+                                if (errorDiv && errorDiv.textContent.includes("Lỗi mã xác minh hoặc lỗi đầu vào, vui lòng quay lại")) {
+                                    console.log("Error detected: Lỗi mã xác minh hoặc lỗi đầu vào");
+
+                                    // Nhấp nút xác nhận
+                                    let confirmButton = null;
+                                    attempts = 0;
+                                    while (!confirmButton && attempts < 5) {
+                                        await sleep(1000);
+                                        confirmButton = document.querySelector('button.btn.btn-primary[ng-click="$ctrl.ok()"][translate="Common_Confirm"].ng-scope');
+                                        attempts++;
+                                        console.log(`Attempt ${attempts}: Confirm button ${confirmButton ? 'found' : 'not found'}`);
+                                        if (confirmButton) {
+                                            confirmButton.click();
+                                            console.log("Clicked confirm button with class btn-primary");
+                                            continue; // Thử lại CAPTCHA
+                                        } else {
+                                            console.log("Confirm button not found after 5 attempts");
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    console.log("No error detected, login successful or no error message");
+                                    break; // Thoát nếu không có lỗi
+                                }
+                            } else {
+                                console.log("Login span not found after 5 attempts");
+                                break;
+                            }
                         } else {
                             console.log("Failed to solve CAPTCHA");
                             break;
