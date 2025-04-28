@@ -1,20 +1,31 @@
 {
-    "manifest_version": 3,
-    "name": "Auto Login Scheduler",
-    "version": "1.0",
-    "description": "Automatically opens and logs into specified websites every 45 minutes",
-    "permissions": [
-      "alarms",
-      "tabs",
-      "debugger"
-    ],
-    "background": {
-      "service_worker": "background.js"
-    },
-    "content_scripts": [
-      {
-        "matches": ["https://www.jun8.kim/vi-vn/login", "https://789be89.com/Deposit"],
-        "js": ["content.js"]
-      }
-    ]
-  }
+  "manifest_version": 3,
+  "name": "Auto Login Scheduler",
+  "version": "1.0",
+  "description": "Automatically opens and logs into specified websites every 45 minutes",
+  "icons": {
+    "16": "icon.png",
+    "128": "icon.png"
+  },
+  "permissions": [
+    "alarms",
+    "tabs",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://789be89.com/Deposit*"],
+      "js": ["tesseract.min.js", "content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["tesseract.min.js"],
+      "matches": ["https://www.jun8.kim/*", "https://789be89.com/*"]
+    }
+  ]
+}

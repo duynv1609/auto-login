@@ -8,143 +8,142 @@ function sleep(ms) {
 function simulateInput(element, value) {
     if (element) {
         element.focus();
-        console.log("Focused on input:", element.id);
+        console.log("Focused on input:", element.id || element.placeholder, "with value:", value);
         element.value = value;
         const inputEvent = new Event('input', { bubbles: true });
         element.dispatchEvent(inputEvent);
-        console.log("Simulated input for:", element.id, "with value:", value);
+        console.log("Simulated input for:", element.id || element.placeholder, "with value:", value);
         element.blur();
     } else {
         console.log("Element not found for simulation");
     }
 }
 
+// Hàm giải mã CAPTCHA
+async function solveCaptcha(imageElement) {
+    try {
+        const worker = await Tesseract.createWorker('eng');
+        await worker.setParameters({ tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' });
+        const { data: { text } } = await worker.recognize(imageElement);
+        await worker.terminate();
+        console.log("CAPTCHA text:", text);
+        return text.trim();
+    } catch (error) {
+        console.error("CAPTCHA solving failed:", error);
+        return null;
+    }
+}
+
+// Trong content.js
+// Trong content.js
+// Trong content.js
 async function autoLogin() {
     const currentUrl = window.location.href;
     console.log("Content script running on:", currentUrl);
 
-    // Trang 1: https://www.jun8.kim/vi-vn/login
-    if (currentUrl === "https://www.jun8.kim/vi-vn/login") {
-        console.log("Processing jun8.kim login page");
+    if (currentUrl.includes("https://789be89.com/Deposit")) {
+        console.log("Processing 789be89.com deposit page");
 
-        // Chờ trang tải (10 giây để vượt Cloudflare nếu có)
-        await sleep(10000);
-        console.log("Waited 10 seconds for page load");
-
-        // Nhấn nút đóng modal
-        const closeButton = document.querySelector(".standard-modal-close");
-        const closeButton2 = document.querySelector(".image-announcement-close");
-        if (closeButton) {
-            closeButton.click();
-            console.log("Closed modal with standard-modal-close");
-        } else {
-            console.log("No modal close button found for .standard-modal-close");
-        }
-        if (closeButton2) {
-            closeButton2.click();
-            console.log("Closed modal with image-announcement-close");
-        } else {
-            console.log("No modal close button found for .image-announcement-close");
-        }
-
-        // Thử điền thông tin đăng nhập (tối đa 5 lần)
-        let loginInput = null;
-        let passwordInput = null;
-        let attempts = 0;
-        while ((!loginInput || !passwordInput) && attempts < 5) {
-            await sleep(1000);
-            loginInput = document.querySelector('#login.form-control-login[type="text"]');
-            passwordInput = document.querySelector('#password.form-control-login[type="password"]');
-            attempts++;
-            console.log(`Attempt ${attempts}: Inputs ${loginInput && passwordInput ? 'found' : 'not found'}`);
-        }
-        simulateInput(loginInput, "thiennhan798");
-        simulateInput(passwordInput, "YeP3eCnXKGSZ");
-
-        // Chờ và nhấn nút đăng nhập (tối đa 5 lần)
-        let loginButton = null;
-        attempts = 0;
-        while (!loginButton && attempts < 5) {
-            await sleep(1000);
-            loginButton = document.querySelector('button[aria-label="login"].user-login-btn.header-btn');
-            attempts++;
-            console.log(`Attempt ${attempts}: Login button ${loginButton ? 'found' : 'not found'}`);
-        }
-        if (loginButton) {
-            loginButton.click();
-            console.log("Clicked login button");
-        } else {
-            console.log("Login button not found after 5 attempts");
-        }
-
-        // Sleep 30 giây
-        await sleep(30000);
-        console.log("Waited 30 seconds after login attempt");
-    }
-
-    // Trang 2: https://789be89.com/Deposit
-    if (currentUrl === "https://789be89.com/Deposit") {
         await sleep(4000);
-        console.log("Processing 789be89.com - no logic yet");
         const closeButton = document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
         if (closeButton) {
             closeButton.click();
+            console.log("Clicked close button with class btn btn-link");
         }
+
         await sleep(2000);
         const spanButton = document.querySelector('span[ng-click="$ctrl.ok()"][translate="Common_Closed"].ng-scope');
         if (spanButton) {
             spanButton.click();
+            console.log("Clicked span with class ng-scope");
         }
-        await sleep(3000);
-        console.log("Waited 3 seconds before clicking login button");
 
-        let loginButton = null;
-        let attempts = 0;
-        while (!loginButton && attempts < 5) {
-            await sleep(1000);
-            loginButton = document.querySelector('button[ng-click="$ctrl.openLoginModal()"][translate="Shared_Login"].ng-scope');
-            attempts++;
-            console.log(`Attempt ${attempts}: Login button ${loginButton ? 'found' : 'not found'}`);
-        }
-        if (loginButton) {
-            loginButton.click();
-            console.log("Clicked login button with class ng-scope");
-        } else {
-            console.log("Login button not found after 5 attempts");
-        }
         await sleep(3000);
+        let loginButtonToOpenModal = null;
+        let attempts = 0;
+        await sleep(1000);
+        loginButtonToOpenModal = document.querySelector('button[ng-click="$ctrl.openLoginModal()"][translate="Shared_Login"].ng-scope');
+        loginButtonToOpenModal.click();
 
         await sleep(3000);
         console.log("Waited 3 seconds before filling inputs");
-        
+
         let accountInput = null;
         let passwordInput = null;
-        
+        attempts = 0;
         while ((!accountInput || !passwordInput) && attempts < 5) {
-          await sleep(1000);
-          accountInput = document.querySelector('input[ng-model="$ctrl.user.account.value"][placeholder="Tài khoản"]');
-          passwordInput = document.querySelector('input[ng-model="$ctrl.user.password.value"][placeholder="Mật khẩu"]');
-          attempts++;
-          console.log(`Attempt ${attempts}: Account input ${accountInput ? 'found' : 'not found'}, Password input ${passwordInput ? 'found' : 'not found'}`);
+            await sleep(1000);
+            accountInput = document.querySelector('input[ng-model="$ctrl.user.account.value"][placeholder="Tài khoản"]');
+            passwordInput = document.querySelector('input[ng-model="$ctrl.user.password.value"][placeholder="Mật khẩu"]');
+            attempts++;
+            console.log(`Attempt ${attempts}: Account input ${accountInput ? 'found' : 'not found'}, Password input ${passwordInput ? 'found' : 'not found'}`);
         }
-        
-        if (accountInput) {
-          simulateInput(accountInput, "abc");
-          console.log("Filled account input with value: abc");
-        } else {
-          console.log("Account input not found after 5 attempts");
-        }
-        
-        if (passwordInput) {
-          simulateInput(passwordInput, "xyz"); // Thay 'xyz' bằng mật khẩu thực tế
-          console.log("Filled password input with value: xyz");
-        } else {
-          console.log("Password input not found after 5 attempts");
+        if (accountInput) simulateInput(accountInput, "thiennhan798");
+        if (passwordInput) simulateInput(passwordInput, "YeP3eCnXKGSZ"); // Thay 'xyz' bằng mật khẩu thực tế
+
+        // Xử lý CAPTCHA với lặp lại khi có lỗi
+        let maxRetries = 3;
+        for (let retry = 0; retry < maxRetries; retry++) {
+            await sleep(1000);
+            console.log(`CAPTCHA attempt ${retry + 1}: Waited 10 seconds before processing CAPTCHA`);
+
+            let captchaInput = null;
+            attempts = 0;
+            while (!captchaInput && attempts < 3) {
+                await sleep(1000);
+                captchaInput = document.querySelector('input[ng-model="$ctrl.code"][placeholder="Mã xác minh"]');
+                attempts++;
+                console.log(`Attempt ${attempts}: CAPTCHA input ${captchaInput ? 'found' : 'not found'}`);
+            }
+
+            if (captchaInput) {
+                let captchaImage = null;
+                attempts = 0;
+                while (!captchaImage && attempts < 3) {
+                    await sleep(1000);
+                    captchaImage = document.querySelector('img[ng-class="$ctrl.styles.captcha"][ng-click="$ctrl.refreshCaptcha()"]');
+                    attempts++;
+                    console.log(`Attempt ${attempts}: CAPTCHA image ${captchaImage ? 'found' : 'not found'}`);
+                }
+
+                if (captchaImage) {
+                    captchaImage.click(); // Nhấp vào ảnh CAPTCHA để làm mới
+                    console.log("Clicked CAPTCHA image to refresh");
+
+                    await sleep(2000); // Chờ ảnh mới tải
+                    captchaImage = document.querySelector('img[ng-class="$ctrl.styles.captcha"][ng-click="$ctrl.refreshCaptcha()"]'); // Lấy lại ảnh
+                    const base64Src = captchaImage ? (captchaImage.getAttribute('ng-src') || captchaImage.getAttribute('src')) : null;
+
+                    if (base64Src && base64Src.startsWith('data:image/')) {
+                        const captchaText = await solveCaptcha(base64Src);
+                        if (captchaText) {
+                            simulateInput(captchaInput, captchaText);
+                            console.log("Filled CAPTCHA input with value:", captchaText);
+
+                            // Nhấp vào nút ĐĂNG NHẬP
+
+                            await sleep(2000);
+                            console.log("Waited 2 seconds before clicking login span");
+                        } else {
+                            console.log("Failed to solve CAPTCHA");
+                            break;
+                        }
+                    } else {
+                        console.log("Invalid or missing base64 src for CAPTCHA image");
+                        break;
+                    }
+                } else {
+                    console.log("CAPTCHA image not found after 15 attempts");
+                    break;
+                }
+            } else {
+                console.log("CAPTCHA input not found after 15 attempts");
+                break;
+            }
         }
     }
 }
 
-// Thử chạy ngay lập tức và khi trang tải xong
 console.log("Trying to run autoLogin immediately");
 autoLogin();
 
