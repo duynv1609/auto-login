@@ -59,16 +59,16 @@ async function autoLogin() {
         }
 
         await sleep(3000);
-        let loginButton = null;
+        let loginButtonToOpenForm = null;
         let attempts = 0;
-        while (!loginButton && attempts < 5) {
+        while (!loginButtonToOpenForm && attempts < 5) {
             await sleep(1000);
-            loginButton = document.querySelector('button[ng-click="$ctrl.openLoginModal()"][translate="Shared_Login"].ng-scope');
+            loginButtonToOpenForm = document.querySelector('button[ng-click="$ctrl.openLoginModal()"][translate="Shared_Login"].ng-scope');
             attempts++;
-            console.log(`Attempt ${attempts}: Login button ${loginButton ? 'found' : 'not found'}`);
+            console.log(`Attempt ${attempts}: Login button ${loginButtonToOpenForm ? 'found' : 'not found'}`);
         }
-        if (loginButton) {
-            loginButton.click();
+        if (loginButtonToOpenForm) {
+            loginButtonToOpenForm.click();
             console.log("Clicked login button with class ng-scope");
         }
 
