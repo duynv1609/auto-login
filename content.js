@@ -41,7 +41,7 @@ function simulateInput(element, value) {
         element.focus();
         console.log("Focused on input:", element.id || element.placeholder, "with value:", value);
         element.value = value;
-        const inputEvent = new Event('input', { bubbles: true });
+        const inputEvent = new Event('input', {bubbles: true});
         element.dispatchEvent(inputEvent);
         console.log("Simulated input for:", element.id || element.placeholder, "with value:", value);
         element.blur();
@@ -51,14 +51,68 @@ function simulateInput(element, value) {
 }
 
 // Hàm giải mã CAPTCHA
-async function solveCaptcha(imageElement) {
+async function solveCaptcha(base64Src) {
+    // try {
+    //     const worker = await Tesseract.createWorker('eng');
+    //     await worker.setParameters({ tessedit_char_whitelist: '0123456789' });
+    //     const { data: { text } } = await worker.recognize(imageElement);
+    //     await worker.terminate();
+    //     console.log("CAPTCHA text:", text);
+    //     return text.trim();
+    // } catch (error) {
+    //     console.error("CAPTCHA solving failed:", error);
+    //     return null;
+    // }
     try {
-        const worker = await Tesseract.createWorker('eng');
-        await worker.setParameters({ tessedit_char_whitelist: '0123456789' });
-        const { data: { text } } = await worker.recognize(imageElement);
-        await worker.terminate();
-        console.log("CAPTCHA text:", text);
-        return text.trim();
+        // Loại bỏ prefix data:image
+        base64Src = base64Src.split(",")[1]; // Lấy phần base64 sau dấu phẩy
+        console.log("Base64 source:", base64Src);
+        // Gửi yêu cầu tới Google Cloud Vision API
+        const apiKey = "AIzaSyDSKgzTCOFeDBpBpRLC1-L9PJvbbgdLxGE"; // Thay bằng API key thực tế của bạn
+        const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                requests: [
+                    {
+                        image: {
+                            content: base64Src
+                        },
+                        features: [
+                            {
+                                type: "TEXT_DETECTION"
+                            }
+                        ]
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            console.error("Google Vision API request failed:", response.status, response.statusText);
+            return null;
+        }
+
+        const data = await response.json();
+        console.log("Google Vision API response:", data);
+
+        // Kiểm tra phản hồi
+        if (
+            data.responses &&
+            data.responses[0] &&
+            data.responses[0].textAnnotations &&
+            data.responses[0].textAnnotations[0] &&
+            data.responses[0].textAnnotations[0].description
+        ) {
+            const captchaText = data.responses[0].textAnnotations[0].description.trim();
+            console.log("CAPTCHA text:", captchaText);
+            return captchaText.trim();
+        } else {
+            console.error("No text detected in CAPTCHA image");
+            return "ERROR";
+        }
     } catch (error) {
         console.error("CAPTCHA solving failed:", error);
         return null;
@@ -108,17 +162,16 @@ async function autoLogin(obj) {
     const passWord = obj.password;
     const siteNote = obj.note;
 
-
     const authToken = getAuthToken();
     await sleep(4000);
-    if (authToken != null && authToken != "") {
+    if (authToken != null && authToken !== "") {
         console.log("Auth token found:", authToken);
         // Gửi authToken tới API
         const apiSuccess = await sendAuthTokenToApi(currentUrl, authToken);
         if (apiSuccess) {
-            alert("Successfully sent auth token to API");
+            console.log("Successfully sent auth token to API");
         } else {
-            alert("Failed to send auth token to API");
+            console.log("Failed to send auth token to API");
         }
         await sleep(4000);
         // Đóng tab sau khi gửi API
@@ -126,21 +179,20 @@ async function autoLogin(obj) {
         window.close();
         return true; // Thoát hàm nếu đã gửi token
     }
-    await sleep(4000);
+    await sleep(2000);
 
     console.log("Content script running on:", currentUrl);
 
     // if (nameSite == "789BET12" || nameSite == "SH232") {
     // alert("Cái ĐCMMMM    " + currentUrl);
     console.log("Processing deposit page " + nameSite);
-    await sleep(4000);
+    await sleep(2000);
 
     let close_second_button = null;
 
     try {
         close_second_button = document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
-    }
-    catch (error) {
+    } catch (error) {
         console.log("Error finding button:", error);
     }
 
@@ -150,7 +202,6 @@ async function autoLogin(obj) {
     }
 
     const closeButton = document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
-
     if (closeButton) {
         closeButton.click();
 
@@ -167,9 +218,9 @@ async function autoLogin(obj) {
     }
     // alert(siteNote);
 
-    await sleep(3000);
+    await sleep(2000);
 
-    if (siteNote == "78WIN") {
+    if (siteNote === "78WIN") {
         let closeButton = null;
         try {
             closeButton = document.querySelector('div.close') ||
@@ -184,7 +235,6 @@ async function autoLogin(obj) {
         } catch (error) {
             console.log("Error finding close button:", error);
         }
-
 
         let modalLoginFormBtn = null;
         let attempts = 0;
@@ -201,7 +251,6 @@ async function autoLogin(obj) {
 
         await sleep(3000);
         console.log("Waited 3 seconds before filling inputs");
-        // 
 
         let accountInput = null;
         let passwordInput = null;
@@ -245,7 +294,7 @@ async function autoLogin(obj) {
             console.log("Clicked login button with class ng-scope");
         }
 
-        await sleep(3000);
+        await sleep(2000);
         console.log("Waited 3 seconds before filling inputs");
 
         let accountInput = null;
@@ -267,35 +316,39 @@ async function autoLogin(obj) {
 
 
         let captchaInput = null;
-
         attempts = 0;
-
-        while (!captchaInput && attempts < 15) {
+        while (!captchaInput && attempts < 3) {
             await sleep(1000);
-            //captchaInput = document.querySelector('.ng-pristine');
             captchaInput = document.querySelector('.ng-pristine');
             attempts++;
             console.log(`Attempt ${attempts}: CAPTCHA input ${captchaInput ? 'found' : 'not found'}`);
+            await sleep(2000);
         }
-
+        console.log("Captcha input found:", captchaInput);
         if (captchaInput) {
             let captchaImage = null;
-
-            captchaInput.focus();
-
-            console.log("Clicked CAPTCHA image to refresh");
-
             await sleep(2000);
-
+            captchaInput.dispatchEvent(new Event('mousedown', {bubbles: true}));
+            captchaInput.dispatchEvent(new FocusEvent('focus', {bubbles: true}));
+            captchaInput.focus();
+            await sleep(2000);
+            console.log("Clicked CAPTCHA image to refresh");
             captchaImage = document.querySelector('img[ng-class="$ctrl.styles.captcha"][ng-click="$ctrl.refreshCaptcha()"]');
-
             const base64Src = captchaImage ? (captchaImage.getAttribute('ng-src') || captchaImage.getAttribute('src')) : null;
-
+            console.log(base64Src, captchaImage);
+            await sleep(2000);
+            if (!base64Src) {
+                location.reload();
+            }
+            await sleep(2000);
             if (base64Src && base64Src.startsWith('data:image/')) {
                 const captchaText = await solveCaptcha(base64Src);
-
+                // await sleep(200000000); //TEST
                 // const captchaText = '45455';
+                // console.log("CAPTCHA TEXT la:", captchaText);
+
                 if (captchaText) {
+                    console.log("STEP 1");
                     simulateInput(captchaInput, captchaText);
                     console.log("Filled CAPTCHA input with value:", captchaText);
 
@@ -313,30 +366,41 @@ async function autoLogin(obj) {
                     }
 
                     if (loginSpan) {
+                        console.log("STEP 2");
                         localStorage.setItem(siteNote, true);
                         loginSpan.click();
 
                         console.log("Clicked login span with class ng-scope");
 
                         // Kiểm tra thông báo lỗi
-                        await sleep(3000);
+                        await sleep(2000);
                         console.log("Checking for error message");
-
+                        console.log("STEP 3");
+                        await sleep(2000);
                         let errorDiv = null;
                         attempts = 0;
-                        while (!errorDiv && attempts < 5) {
+                        while (!errorDiv && attempts < 3) {
                             await sleep(1000);
                             errorDiv = document.querySelector('div[bind-html-compile="$ctrl.content"]');
+                            // if (accountInput) simulateInput(accountInput, "pinkman00789");
+                            // if (passwordInput) simulateInput(passwordInput, "Qj6g7FVYGEW"); // Thay 'xyz' bằng mật khẩu thực tế
                             attempts++;
                             console.log(`Attempt ${attempts}: Error div ${errorDiv ? 'found' : 'not found'}`);
+                            console.log("STEP 5");
                         }
-                        if (errorDiv) {
 
+                        if (errorDiv) {
+                            console.log(errorDiv.textContent.trim());
+                            var textErr = errorDiv.textContent.trim();
+                            // "Lỗi mã xác minh hoặc lỗi đầu vào, vui lòng quay lại";
+                            if (textErr == "Tài khoản này đang bị vô hiệu hóa, vui lòng liên hệ với bộ phận chăm sóc khách hàng") {
+                                window.close();
+                                return true;
+                            }
                             return false;
                         }
                     }
-                }
-                else {
+                } else {
                     console.log("Failed to solve CAPTCHA");
                     return false;
                 }
@@ -351,12 +415,28 @@ async function autoLogin(obj) {
         }
     }
 
-
     // }
-    await sleep(3000);
+
+    const newAuthToken = getAuthToken();
+    await sleep(4000);
+    if (newAuthToken != null && newAuthToken !== "") {
+        console.log("Auth token found:", newAuthToken);
+        // Gửi newAuthToken tới API
+        const apiSuccess = await sendAuthTokenToApi(currentUrl, newAuthToken);
+        if (apiSuccess) {
+            console.log("Successfully sent auth token to API");
+        } else {
+            console.log("Failed to send auth token to API");
+        }
+        await sleep(4000);
+        // Đóng tab sau khi gửi API
+        console.log("Sent token request success : ", currentUrl);
+        window.close();
+        return true; // Thoát hàm nếu đã gửi token
+    }
+    await sleep(2000);
 
     window.close();
-
     return true;
 }
 
@@ -421,6 +501,7 @@ async function loginExecute() {
         }
     }
 }
+
 //loginExecute();
 
 // console.log("Trying to run autoLogin immediately");
