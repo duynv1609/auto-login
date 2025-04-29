@@ -49,18 +49,18 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         });
 
         // Mở tab https://www.google.com/ khi tất cả task hoàn tất
-        console.log("All tasks completed, opening Google");
-        try {
-            await new Promise((resolve) => {
-                chrome.tabs.create({ url: 'https://bantkg.test/api/send-message-bet' }, (tab) => {
-                    console.log("Opened Google tab, ID:", tab.id);
-                    resolve();
-                });
-            });
-            console.log("Successfully opened Google tab");
-        } catch (error) {
-            console.error("Failed to open Google tab:", error);
-        }
+        // console.log("All tasks completed, opening Google");
+        // try {
+        //     await new Promise((resolve) => {
+        //         chrome.tabs.create({ url: 'https://bantkg.test/api/send-message-bet' }, (tab) => {
+        //             console.log("Opened Google tab, ID:", tab.id);
+        //             resolve();
+        //         });
+        //     });
+        //     console.log("Successfully opened Google tab");
+        // } catch (error) {
+        //     console.error("Failed to open Google tab:", error);
+        // }
     }
 });
 
