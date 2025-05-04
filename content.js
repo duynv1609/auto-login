@@ -16,7 +16,7 @@ function getAuthToken() {
 
 const getAllData = async () => {
     // const url = 'https://quanlysim.vn/api/list-vendor';
-    const url = 'https://bantkg.test/api/list-vendor';
+    const url = 'https://quanlysim.vn/api/list-vendor';
 
 
     const response = await fetch(url);
@@ -121,7 +121,7 @@ async function solveCaptcha(base64Src) {
 
 // Hàm gửi authToken tới API
 async function sendAuthTokenToApi(betDomain, betToken) {
-    const apiUrl = 'https://bantkg.test/api/token-bet-telegram';
+    const apiUrl = 'https://quanlysim.vn/api/token-bet-telegram';
     try {
         const response = await fetch(apiUrl, {
             method: 'POST',
@@ -450,7 +450,7 @@ async function autoLogin(obj) {
 
 // Hàm gửi API khi tất cả task hoàn tất
 async function sendCompletionApi() {
-    const apiUrl = 'https://bantkg.test/api/send-message-bet'; // Thay bằng URL API thực tế
+    const apiUrl = 'https://quanlysim.vn/api/send-message-bet'; // Thay bằng URL API thực tế
     try {
         const response = await fetch(apiUrl, {
             method: 'POST',

@@ -1,6 +1,6 @@
 const getAllData = async () => {
     // const url = 'https://quanlysim.vn/api/list-vendor';
-    const url = 'https://bantkg.test/api/list-vendor';
+    const url = 'https://quanlysim.vn/api/list-vendor';
 
     const response = await fetch(url);
 
@@ -91,7 +91,7 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
 
 // Hàm gửi API khi tất cả các tab đã đóng
 async function sendCompletionApi() {
-    const apiUrl = 'https://bantkg.test/api/send-message-bet';
+    const apiUrl = 'https://quanlysim.vn/api/send-message-bet';
     try {
         const response = await fetch(apiUrl, {
             method: 'GET',
@@ -156,7 +156,7 @@ function isValidUrl(url) {
 
 // Hàm gửi thông tin về API khi URL không truy cập được
 async function reportInvalidUrl(domain) {
-    const apiUrl = 'https://bantkg.test/api/update-type-vendor';
+    const apiUrl = 'https://quanlysim.vn/api/update-type-vendor';
     try {
         const response = await fetch(apiUrl, {
             method: 'POST',
