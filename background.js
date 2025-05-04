@@ -24,7 +24,7 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.alarms.create("loginExecute",
         {
             delayInMinutes: 0,
-            periodInMinutes: 30
+            periodInMinutes: 45
         });
 });
 
