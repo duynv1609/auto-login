@@ -22,7 +22,10 @@ const getAllData = async () => {
     const response = await fetch(url);
 
     if (!response.ok) {
-        return null;
+        chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+            console.log("Request to close tab sent to background script.");
+        });
+        return false; // Thoát hàm nếu đã gửi token
     }
     const data = await response.json();
 
@@ -92,7 +95,10 @@ async function solveCaptcha(base64Src) {
 
         if (!response.ok) {
             console.error("Google Vision API request failed:", response.status, response.statusText);
-            return null;
+            chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+                console.log("Request to close tab sent to background script.");
+            });
+            return false; // Thoát hàm nếu đã gửi token
         }
 
         const data = await response.json();
@@ -110,12 +116,16 @@ async function solveCaptcha(base64Src) {
             console.log("CAPTCHA text:", captchaText);
             return captchaText.trim();
         } else {
-            console.error("No text detected in CAPTCHA image");
-            return "ERROR";
+            chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+                console.log("Request to close tab sent to background script.");
+            });
+            return false; // Thoát hàm nếu đã gửi token
         }
     } catch (error) {
-        console.error("CAPTCHA solving failed:", error);
-        return null;
+        chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+            console.log("Request to close tab sent to background script.");
+        });
+        return false; // Thoát hàm nếu đã gửi token
     }
 }
 
