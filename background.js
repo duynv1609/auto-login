@@ -1,5 +1,3 @@
-
-
 const getAllData = async () => {
     // const url = 'https://quanlysim.vn/api/list-vendor';
     const url = 'https://bantkg.test/api/list-vendor';
@@ -30,42 +28,155 @@ chrome.runtime.onInstalled.addListener(() => {
         });
 });
 
-
-
+// Mảng để theo dõi các tab đã mở
+let openedTabs = [];
+let cachedData = null;
+// Khi mở tab, thêm tab ID vào mảng
 chrome.alarms.onAlarm.addListener(async (alarm) => {
     if (alarm.name === "loginExecute") {
-        console.log("Alarm triggered, opening tab");
+        console.log("Alarm triggered, opening tabs");
         const [status, total, data] = await getAllData();
+        
+        if (status && data && data.length > 0) {
+            cachedData = data;
+            console.log("Data fetched and cached:", cachedData);
+        } else {
+            console.error("Failed to fetch data or no data available");
+            cachedData = [];
+        }
+
         const urls = [];
         for (let i = 0; i < data.length; i++) {
             var obj = data[i];
             var url = obj.domain;
+
+            // Kiểm tra URL có truy cập được không
+            // const isAccessible = await checkUrlAccessibility(url);
+            // if (!isAccessible) {
+            //     console.log(`URL not accessible: ${url}`);
+            //     await reportInvalidUrl(url); // Gửi thông tin về API
+            //     continue; // Bỏ qua URL không hợp lệ
+            // }
+
+
             urls.push(url);
         }
+
         urls.forEach(url => {
             chrome.tabs.create({ url: url }, (tab) => {
                 console.log("Opened tab, tab ID:", tab.id);
+                openedTabs.push(tab.id); // Thêm tab ID vào mảng
             });
         });
-
-        // Mở tab https://www.google.com/ khi tất cả task hoàn tất
-        // console.log("All tasks completed, opening Google");
-        // try {
-        //     await new Promise((resolve) => {
-        //         chrome.tabs.create({ url: 'https://bantkg.test/api/send-message-bet' }, (tab) => {
-        //             console.log("Opened Google tab, ID:", tab.id);
-        //             resolve();
-        //         });
-        //     });
-        //     console.log("Successfully opened Google tab");
-        // } catch (error) {
-        //     console.error("Failed to open Google tab:", error);
-        // }
     }
 });
 
+// Lắng nghe sự kiện đóng tab
+chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
+    // Xóa tab ID khỏi mảng khi tab bị đóng
+    const index = openedTabs.indexOf(tabId);
+    if (index > -1) {
+        openedTabs.splice(index, 1);
+        console.log(`Tab closed, tab ID: ${tabId}. Remaining tabs: ${openedTabs.length}`);
+    }
+
+    // Kiểm tra nếu tất cả các tab đã đóng
+    if (openedTabs.length === 0) {
+        console.log("All tabs have been closed!");
+        // Thực hiện hành động khi tất cả các tab đã đóng
+        sendCompletionApi();
+    }
+});
+
+
+// Hàm gửi API khi tất cả các tab đã đóng
+async function sendCompletionApi() {
+    const apiUrl = 'https://bantkg.test/api/send-message-bet';
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            console.error(`Failed to send completion API: ${response.status}, Response: ${text}`);
+        } else {
+            console.log("Completion API sent successfully!");
+        }
+    } catch (error) {
+        console.error(`Error sending completion API:`, error);
+    }
+}
+
+// Lắng nghe yêu cầu đóng tab từ content.js
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    if (request.action === "closeTab" && sender.tab.id) {
-        chrome.tabs.remove(sender.tab.id);
+    if (request.action === "getData") {
+        console.log("Sending cached data to content script:", cachedData);
+        sendResponse({ data: cachedData || [] }); // Đảm bảo luôn gửi một mảng (không undefined)
+    } else if (request.action === "closeTab" && sender.tab) {
+        chrome.tabs.remove(sender.tab.id, () => {
+            console.log(`Tab closed via message, tab ID: ${sender.tab.id}`);
+        });
+    } else {
+        console.error("Unknown action received:", request.action);
     }
 });
+
+// Hàm kiểm tra URL có truy cập được hay không
+async function checkUrlAccessibility(url) {
+    if (!isValidUrl(url)) {
+        console.error(`Invalid URL: ${url}`);
+        await reportInvalidUrl(url); // Gửi thông báo về API
+        return false; // Bỏ qua URL không hợp lệ
+    }
+
+    try {
+        const response = await fetch(url, { method: 'HEAD' }); // Kiểm tra URL bằng HEAD
+        console.log(`Checked URL: ${url}, Status: ${response.status}`);
+        if (!response.ok) {
+            await reportInvalidUrl(url); // Gửi thông báo về API nếu URL không truy cập được
+        }
+        return response.ok; // Trả về true nếu URL hợp lệ, false nếu không
+    } catch (error) {
+        console.error(`Error accessing URL ${url}:`, error.message);
+        await reportInvalidUrl(url); // Gửi thông báo về API nếu có lỗi
+        return false; // Bỏ qua URL nếu xảy ra lỗi
+    }
+}
+
+function isValidUrl(url) {
+    try {
+        new URL(url); // Kiểm tra xem URL có hợp lệ không
+        return true;
+    } catch (error) {
+        console.error(`Invalid URL: ${url}`);
+        return false;
+    }
+}
+
+// Hàm gửi thông tin về API khi URL không truy cập được
+async function reportInvalidUrl(domain) {
+    const apiUrl = 'https://bantkg.test/api/update-type-vendor';
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                domain: domain,
+                type: 5, // Type 5: URL không truy cập được
+            }),
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            console.error(`Failed to report invalid URL: ${response.status}, Response: ${text}`);
+        } else {
+            console.log(`Reported invalid URL for domain: ${domain}`);
+        }
+    } catch (error) {
+        console.error(`Error reporting invalid URL for domain ${domain}:`, error);
+    }
+}
+

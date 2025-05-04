@@ -41,7 +41,7 @@ function simulateInput(element, value) {
         element.focus();
         console.log("Focused on input:", element.id || element.placeholder, "with value:", value);
         element.value = value;
-        const inputEvent = new Event('input', {bubbles: true});
+        const inputEvent = new Event('input', { bubbles: true });
         element.dispatchEvent(inputEvent);
         console.log("Simulated input for:", element.id || element.placeholder, "with value:", value);
         element.blur();
@@ -176,7 +176,9 @@ async function autoLogin(obj) {
         await sleep(4000);
         // Đóng tab sau khi gửi API
         console.log("Sent token request success : ", currentUrl);
-        window.close();
+        chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+            console.log("Request to close tab sent to background script.");
+        });
         return true; // Thoát hàm nếu đã gửi token
     }
     await sleep(2000);
@@ -328,8 +330,8 @@ async function autoLogin(obj) {
         if (captchaInput) {
             let captchaImage = null;
             await sleep(2000);
-            captchaInput.dispatchEvent(new Event('mousedown', {bubbles: true}));
-            captchaInput.dispatchEvent(new FocusEvent('focus', {bubbles: true}));
+            captchaInput.dispatchEvent(new Event('mousedown', { bubbles: true }));
+            captchaInput.dispatchEvent(new FocusEvent('focus', { bubbles: true }));
             captchaInput.focus();
             await sleep(2000);
             console.log("Clicked CAPTCHA image to refresh");
@@ -394,7 +396,9 @@ async function autoLogin(obj) {
                             var textErr = errorDiv.textContent.trim();
                             // "Lỗi mã xác minh hoặc lỗi đầu vào, vui lòng quay lại";
                             if (textErr == "Tài khoản này đang bị vô hiệu hóa, vui lòng liên hệ với bộ phận chăm sóc khách hàng") {
-                                window.close();
+                                chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+                                    console.log("Request to close tab sent to background script.");
+                                });
                                 return true;
                             }
                             return false;
@@ -431,12 +435,16 @@ async function autoLogin(obj) {
         await sleep(4000);
         // Đóng tab sau khi gửi API
         console.log("Sent token request success : ", currentUrl);
-        window.close();
-        return true; // Thoát hàm nếu đã gửi token
+        chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+            console.log("Request to close tab sent to background script.");
+        });
+        return true;
     }
     await sleep(2000);
 
-    window.close();
+    chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+        console.log("Request to close tab sent to background script.");
+    });
     return true;
 }
 
@@ -477,11 +485,20 @@ async function sendCompletionApi() {
 async function loginExecute() {
     console.log("Executing loginExecute function");
     const currentUrl = window.location.href;
-    const [status, total, data] = await getAllData();
-    if (!status || !data.length) {
+
+    // Yêu cầu dữ liệu từ background.js
+    const data = await new Promise((resolve) => {
+        chrome.runtime.sendMessage({ action: "getData" }, (response) => {
+            console.log("Received data from background.js:", response);
+            resolve(response.data || []);
+        });
+    });
+
+    if (!data.length) {
         console.error("No valid vendor data, exiting");
-        return;
+        return true;
     }
+
     for (let i = 0; i < data.length; i++) {
         const curr_obj = data[i];
         if (currentUrl.includes(curr_obj.domain)) {
@@ -495,14 +512,14 @@ async function loginExecute() {
             const result = await autoLogin(obj);
             if (!result) {
                 console.log("Login failed, reloading page");
-                location.reload();
+                location.reload(); // Reload sẽ không gọi lại getAllData
             }
             break;
         }
     }
 }
 
-//loginExecute();
+// loginExecute();
 
 // console.log("Trying to run autoLogin immediately");
 // autoLogin();
