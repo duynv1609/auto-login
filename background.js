@@ -120,6 +120,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     } else {
         console.error("Unknown action received:", request.action);
     }
+    return true; // Để giữ kết nối mở cho sendResponse
 });
 
 // Hàm kiểm tra URL có truy cập được hay không

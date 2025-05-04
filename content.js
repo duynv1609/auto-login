@@ -504,7 +504,7 @@ async function loginExecute() {
         });
     });
 
-    if (!data.length) {
+    if (!Array.isArray(data) || !data.length) {
         console.error("No valid vendor data, exiting");
         chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
             console.log("Request to close tab sent to background script.");
