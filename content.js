@@ -314,7 +314,7 @@ async function autoLogin(obj) {
         newAuthToken = localStorage.getItem("token") || "";
         newAuthToken = newAuthToken.replace(/"/g, "");
         console.log(newAuthToken);
-        await sleep(30000);
+        await sleep(5000);
     }
     else {
         let loginButtonToOpenForm789BET = null;
