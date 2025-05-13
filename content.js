@@ -9,7 +9,8 @@ function getAuthToken() {
         .split('; ')
         .find(cookie => cookie.startsWith('_pat='));
     if (!patCookie) {
-        return "";
+        const newAuthToken = localStorage.getItem("token") || "";
+        return newAuthToken.replace(/"/g, "");
     }
     return patCookie.split('=')[1];
 }
@@ -172,6 +173,7 @@ async function autoLogin(obj) {
     const passWord = obj.password;
     const siteNote = obj.note;
 
+    let newAuthToken = "";
     const authToken = getAuthToken();
     await sleep(4000);
     if (authToken != null && authToken !== "") {
@@ -213,11 +215,19 @@ async function autoLogin(obj) {
         close_second_button.click();
     }
 
-    const closeButton = document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
-    if (closeButton) {
-        closeButton.click();
-
-        console.log("Clicked close button with class btn btn-link");
+    let closeButton = null;
+    try {
+        closeButton = document.querySelector('div.close') ||
+            document.querySelector('i.mps-close') ||
+            document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
+        if (closeButton) {
+            closeButton.click();
+            console.log("Clicked close button (div.close, i.mps-close, or btn-link)");
+        } else {
+            console.log("Close button not found");
+        }
+    } catch (error) {
+        console.log("Error finding close button:", error);
     }
 
     await sleep(2000);
@@ -231,8 +241,7 @@ async function autoLogin(obj) {
     // alert(siteNote);
 
     await sleep(2000);
-
-    if (siteNote === "78WIN") {
+    if (nameSite === "78WIN" || nameSite === "JUN88") {
         let closeButton = null;
         try {
             closeButton = document.querySelector('div.close') ||
@@ -247,12 +256,13 @@ async function autoLogin(obj) {
         } catch (error) {
             console.log("Error finding close button:", error);
         }
-
+        console.log(siteNote);
         let modalLoginFormBtn = null;
         let attempts = 0;
         while (!modalLoginFormBtn && attempts < 3) {
             await sleep(1000);
-            modalLoginFormBtn = document.querySelector('div.header-btn.login');
+            modalLoginFormBtn = document.querySelector('div.header-btn.login') ||
+                document.querySelector('a.btn-big.login');
             attempts++;
             console.log(`Attempt ${attempts}: Login button ${modalLoginFormBtn ? 'found' : 'not found'}`);
         }
@@ -273,11 +283,16 @@ async function autoLogin(obj) {
             passwordInput = document.querySelector('input#password');
             attempts++;
             console.log(`Attempt ${attempts}: Account input ${accountInput ? 'found' : 'not found'}, Password input ${passwordInput ? 'found' : 'not found'}`);
+            if (attempts === 3) {
+                console.log("Attempts reached 3, reloading the page to recheck.");
+                location.reload();
+                return; // Exit the function to prevent further execution after reload
+            }
         }
         if (accountInput) simulateInput(accountInput, userName);
         if (passwordInput) simulateInput(passwordInput, passWord); // Thay 'xyz' bằng mật khẩu thực tế
 
-        await sleep(1000);
+        await sleep(4000);
 
         // Nhấp vào nút ĐĂNG NHẬP
         await sleep(2000);
@@ -291,6 +306,15 @@ async function autoLogin(obj) {
             attempts++;
             console.log(`Attempt ${attempts}: Login span ${loginSpan ? 'found' : 'not found'}`);
         }
+        if (loginSpan) {
+            loginSpan.click();
+            console.log("Clicked login loginSpan");
+        }
+        await sleep(3000);
+        newAuthToken = localStorage.getItem("token") || "";
+        newAuthToken = newAuthToken.replace(/"/g, "");
+        console.log(newAuthToken);
+        await sleep(30000);
     }
     else {
         let loginButtonToOpenForm789BET = null;
@@ -427,11 +451,12 @@ async function autoLogin(obj) {
             console.log("CAPTCHA input not found after 15 attempts");
             return false;
         }
+        newAuthToken = getAuthToken();
     }
 
     // }
-
-    const newAuthToken = getAuthToken();
+    console.log(newAuthToken);
+    console.log("Waiting 4 seconds before checking for new auth token");
     await sleep(4000);
     if (newAuthToken != null && newAuthToken !== "") {
         console.log("Auth token found:", newAuthToken);

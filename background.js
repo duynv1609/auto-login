@@ -1,6 +1,6 @@
 const getAllData = async () => {
-    // const url = 'https://quanlysim.vn/api/list-vendor';
     const url = 'https://quanlysim.vn/api/list-vendor';
+    // const url = 'https://quanlysim.vn/api/list-vendor';
 
     const response = await fetch(url);
 
@@ -17,6 +17,32 @@ const getAllData = async () => {
 
     return [status, total, list_data];
 }
+
+// chrome.webRequest.onHeadersReceived.addListener(
+//     (details) => {
+//         let xSecData = null;
+//         // Kiểm tra header phản hồi
+//         for (const header of details.responseHeaders) {
+//             if (header.name.toLowerCase() === "x-sec-data") {
+//                 xSecData = header.value;
+//                 console.log(`Found x-sec-data for URL ${details.url}:`, xSecData);
+//                 break;
+//             }
+//         }
+//
+//         // Lưu x-sec-data vào storage nếu có
+//         if (xSecData && details.tabId !== -1) {
+//             chrome.storage.local.set({
+//                 [`x-sec-data-${details.tabId}`]: xSecData
+//             }, () => {
+//                 console.log(`Stored x-sec-data for tab ${details.tabId}: ${xSecData}`);
+//             });
+//         }
+//
+//         return { responseHeaders: details.responseHeaders };
+//     },
+//     ["responseHeaders"]
+// );
 
 
 chrome.runtime.onInstalled.addListener(() => {
