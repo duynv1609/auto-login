@@ -283,7 +283,7 @@ async function autoLogin(obj) {
         } catch (error) {
             console.log("Error finding close button:", error);
         }
-        console.log(siteNote);
+        console.log(nameSite);
         let modalLoginFormBtn = null;
         let attemptsModal = 0;
         while (!modalLoginFormBtn && attemptsModal < 3) {
@@ -304,32 +304,29 @@ async function autoLogin(obj) {
 
         let accountInput = null;
         let passwordInput = null;
-        let attemptsInput = 0;
+        var attemptsInput = 0;
         while ((!accountInput || !passwordInput) && attemptsInput < 5) {
             await sleep(1000);
             accountInput = document.querySelector('input#login');
             passwordInput = document.querySelector('input#password');
             attemptsInput++;
+            console.log(attemptsInput);
             console.log(`Attempt ${attemptsInput}: Account input ${accountInput ? 'found' : 'not found'}, Password input ${passwordInput ? 'found' : 'not found'}`);
-            if (attemptsInput <= 3) {
+            if (attemptsInput > 3) {
                 await sleep(15000)
                 console.log("Attempts reached 3, reloading the page to recheck.");
                 location.reload();
                 return; // Exit the function to prevent further execution after reload
             }
         }
-        if (attemptsInput === 4){
-            chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
-                console.log("Request to close tab sent to background script.");
-            });
-        }
+        console.log(attemptsInput);
         if (accountInput) simulateInput(accountInput, userName);
         if (passwordInput) simulateInput(passwordInput, passWord); // Thay 'xyz' bằng mật khẩu thực tế
-
+        console.log("CLMMM")
         await sleep(4000);
 
         // Nhấp vào nút ĐĂNG NHẬP
-        await sleep(2000);
+        // await sleep(2000);
         console.log("Waited 2 seconds before clicking login span");
 
         let loginSpan = null;
@@ -345,7 +342,9 @@ async function autoLogin(obj) {
             chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
                 console.log("Request to close tab sent to background script.");
             });
+            return true;
         }
+        console.log("Clicked login loginSpan");
         if (loginSpan) {
             await sleep(10000);
             loginSpan.click();
