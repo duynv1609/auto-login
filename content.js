@@ -13,7 +13,7 @@ const CONFIG = {
         LIST_VENDOR_API: "https://quanlysim.vn/api/list-vendor",
         SEND_MESSAGE_BET_API: "https://quanlysim.vn/api/send-message-bet",
         UPDATE_TYPE_VENDOR: "https://quanlysim.vn/api/update-type-vendor",
-        SENT_TOKEN_BET_API: "https://bantkg.test/api/token-bet-telegram",
+        SENT_TOKEN_BET_API: "https://quanlysim.vn/api/token-bet-telegram",
     }
 };
 console.log("Content script loaded");
@@ -285,13 +285,13 @@ async function autoLogin(obj) {
         }
         console.log(siteNote);
         let modalLoginFormBtn = null;
-        let attempts = 0;
-        while (!modalLoginFormBtn && attempts < 3) {
+        let attemptsModal = 0;
+        while (!modalLoginFormBtn && attemptsModal < 3) {
             await sleep(5000);
             modalLoginFormBtn = document.querySelector('div.header-btn.login') ||
                 document.querySelector('a.btn-big.login');
-            attempts++;
-            console.log(`Attempt ${attempts}: Login button ${modalLoginFormBtn ? 'found' : 'not found'}`);
+            attemptsModal++;
+            console.log(`Attempt ${attemptsModal}: Login button ${modalLoginFormBtn ? 'found' : 'not found'}`);
         }
         if (modalLoginFormBtn) {
             await sleep(3000);
@@ -304,18 +304,24 @@ async function autoLogin(obj) {
 
         let accountInput = null;
         let passwordInput = null;
-        attempts = 0;
-        while ((!accountInput || !passwordInput) && attempts < 5) {
+        let attemptsInput = 0;
+        while ((!accountInput || !passwordInput) && attemptsInput < 5) {
             await sleep(1000);
             accountInput = document.querySelector('input#login');
             passwordInput = document.querySelector('input#password');
-            attempts++;
-            console.log(`Attempt ${attempts}: Account input ${accountInput ? 'found' : 'not found'}, Password input ${passwordInput ? 'found' : 'not found'}`);
-            if (attempts === 3) {
+            attemptsInput++;
+            console.log(`Attempt ${attemptsInput}: Account input ${accountInput ? 'found' : 'not found'}, Password input ${passwordInput ? 'found' : 'not found'}`);
+            if (attemptsInput <= 3) {
+                await sleep(15000)
                 console.log("Attempts reached 3, reloading the page to recheck.");
                 location.reload();
                 return; // Exit the function to prevent further execution after reload
             }
+        }
+        if (attemptsInput === 5){
+            chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+                console.log("Request to close tab sent to background script.");
+            });
         }
         if (accountInput) simulateInput(accountInput, userName);
         if (passwordInput) simulateInput(passwordInput, passWord); // Thay 'xyz' bằng mật khẩu thực tế
@@ -327,12 +333,12 @@ async function autoLogin(obj) {
         console.log("Waited 2 seconds before clicking login span");
 
         let loginSpan = null;
-        attempts = 0;
-        while (!loginSpan && attempts < 5) {
+        let attemptsLoginBtn = 0;
+        while (!loginSpan && attemptsLoginBtn < 5) {
             await sleep(4000);
             loginSpan = document.querySelector('button.nrc-button');
-            attempts++;
-            console.log(`Attempt ${attempts}: Login span ${loginSpan ? 'found' : 'not found'}`);
+            attemptsLoginBtn++;
+            console.log(`Attempt ${attemptsLoginBtn}: Login span ${loginSpan ? 'found' : 'not found'}`);
         }
         if (loginSpan) {
             await sleep(10000);
@@ -422,12 +428,12 @@ async function autoLogin(obj) {
                     console.log("Waited 2 seconds before clicking login span");
 
                     let loginSpan = null;
-                    attempts = 0;
-                    while (!loginSpan && attempts < 5) {
+                    let attemptsLoginSpan = 0;
+                    while (!loginSpan && attemptsLoginSpan < 5) {
                         await sleep(1000);
                         loginSpan = document.querySelector('span[ng-if="!$ctrl.loginPending"][translate="Shared_Login"].ng-scope');
-                        attempts++;
-                        console.log(`Attempt ${attempts}: Login span ${loginSpan ? 'found' : 'not found'}`);
+                        attemptsLoginSpan++;
+                        console.log(`Attempt ${attemptsLoginSpan}: Login span ${loginSpan ? 'found' : 'not found'}`);
                     }
 
                     if (loginSpan) {
@@ -443,14 +449,14 @@ async function autoLogin(obj) {
                         console.log("STEP 3");
                         await sleep(2000);
                         let errorDiv = null;
-                        attempts = 0;
-                        while (!errorDiv && attempts < 3) {
+                        let attemptsDivFoundModalErr = 0;
+                        while (!errorDiv && attemptsDivFoundModalErr < 3) {
                             await sleep(1000);
                             errorDiv = document.querySelector('div[bind-html-compile="$ctrl.content"]');
                             // if (accountInput) simulateInput(accountInput, "pinkman00789");
                             // if (passwordInput) simulateInput(passwordInput, "Qj6g7FVYGEW"); // Thay 'xyz' bằng mật khẩu thực tế
-                            attempts++;
-                            console.log(`Attempt ${attempts}: Error div ${errorDiv ? 'found' : 'not found'}`);
+                            attemptsDivFoundModalErr++;
+                            console.log(`Attempt ${attemptsDivFoundModalErr}: Error div ${errorDiv ? 'found' : 'not found'}`);
                             console.log("STEP 5");
                         }
 
