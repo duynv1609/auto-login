@@ -1,3 +1,21 @@
+const ENVIRONMENT = "production"; // Thay thành "production" khi deploy
+
+const CONFIG = {
+    local: {
+        API_BASE_URL: "https://bantkg.test",
+        LIST_VENDOR_API: "https://bantkg.test/api/list-vendor",
+        SEND_MESSAGE_BET_API: "https://bantkg.test/api/send-message-bet",
+        SENT_TOKEN_BET_API: "https://bantkg.test/api/token-bet-telegram",
+        UPDATE_TYPE_VENDOR: "https://bantkg.test/api/update-type-vendor",
+    },
+    production: {
+        API_BASE_URL: "https://quanlysim.vn",
+        LIST_VENDOR_API: "https://quanlysim.vn/api/list-vendor",
+        SEND_MESSAGE_BET_API: "https://quanlysim.vn/api/send-message-bet",
+        UPDATE_TYPE_VENDOR: "https://quanlysim.vn/api/update-type-vendor",
+        SENT_TOKEN_BET_API: "https://bantkg.test/api/token-bet-telegram",
+    }
+};
 console.log("Content script loaded");
 
 function sleep(ms) {
@@ -16,8 +34,8 @@ function getAuthToken() {
 }
 
 const getAllData = async () => {
-    // const url = 'https://quanlysim.vn/api/list-vendor';
-    const url = 'https://quanlysim.vn/api/list-vendor';
+    // const url = 'https://bantkg.test/api/list-vendor';
+    const url = CONFIG[ENVIRONMENT].LIST_VENDOR_API;
 
 
     const response = await fetch(url);
@@ -132,9 +150,14 @@ async function solveCaptcha(base64Src) {
 
 // Hàm gửi authToken tới API
 async function sendAuthTokenToApi(betDomain, betToken) {
-    const apiUrl = 'https://quanlysim.vn/api/token-bet-telegram';
+    let apiUrlSentToken = CONFIG[ENVIRONMENT].SENT_TOKEN_BET_API;
+    console.log(CONFIG[ENVIRONMENT].SENT_TOKEN_BET_API);
+    console.log(betDomain);
+    console.log(betToken);
+    console.log("DCMM");
+    await sleep(3000);
     try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch(apiUrlSentToken, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -147,6 +170,7 @@ async function sendAuthTokenToApi(betDomain, betToken) {
         if (!response.ok) {
             const text = await response.text();
             console.error(`Failed to send auth token to API: ${response.status}, Response: ${text}`);
+            await sleep(5000);
             return false;
         }
         // Kiểm tra Content-Type để đảm bảo là JSON
@@ -154,13 +178,16 @@ async function sendAuthTokenToApi(betDomain, betToken) {
         if (!contentType || !contentType.includes('application/json')) {
             const text = await response.text();
             console.error(`API returned non-JSON response: ${text}`);
+            await sleep(5000);
             return false;
         }
         const result = await response.json();
         console.log("API response:", result);
+        await sleep(5000);
         return true;
     } catch (error) {
         console.error("Error sending auth token to API:", error);
+        await sleep(5000);
         return false;
     }
 }
@@ -260,13 +287,14 @@ async function autoLogin(obj) {
         let modalLoginFormBtn = null;
         let attempts = 0;
         while (!modalLoginFormBtn && attempts < 3) {
-            await sleep(1000);
+            await sleep(5000);
             modalLoginFormBtn = document.querySelector('div.header-btn.login') ||
                 document.querySelector('a.btn-big.login');
             attempts++;
             console.log(`Attempt ${attempts}: Login button ${modalLoginFormBtn ? 'found' : 'not found'}`);
         }
         if (modalLoginFormBtn) {
+            await sleep(3000);
             modalLoginFormBtn.click();
             console.log("Clicked login button with class ng-scope");
         }
@@ -301,12 +329,13 @@ async function autoLogin(obj) {
         let loginSpan = null;
         attempts = 0;
         while (!loginSpan && attempts < 5) {
-            await sleep(1000);
+            await sleep(4000);
             loginSpan = document.querySelector('button.nrc-button');
             attempts++;
             console.log(`Attempt ${attempts}: Login span ${loginSpan ? 'found' : 'not found'}`);
         }
         if (loginSpan) {
+            await sleep(10000);
             loginSpan.click();
             console.log("Clicked login loginSpan");
         }
@@ -485,10 +514,10 @@ async function autoLogin(obj) {
 
 // Hàm gửi API khi tất cả task hoàn tất
 async function sendCompletionApi() {
-    const apiUrl = 'https://quanlysim.vn/api/send-message-bet'; // Thay bằng URL API thực tế
+    const apiUrl = CONFIG[ENVIRONMENT].SEND_MESSAGE_BET_API; // Thay bằng URL API thực tế
     try {
         const response = await fetch(apiUrl, {
-            method: 'POST',
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },

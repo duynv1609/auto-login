@@ -1,6 +1,23 @@
+const ENVIRONMENT = "production"; // Thay thành "production" khi deploy
+
+const CONFIG = {
+    local: {
+        API_BASE_URL: "https://bantkg.test",
+        LIST_VENDOR_API: "https://bantkg.test/api/list-vendor",
+        SEND_MESSAGE_BET_API: "https://bantkg.test/api/send-message-bet",
+        SENT_TOKEN_BET_API: "https://bantkg.test/api/token-bet-telegram",
+        UPDATE_TYPE_VENDOR: "https://bantkg.test/api/update-type-vendor",
+    },
+    production: {
+        API_BASE_URL: "https://quanlysim.vn",
+        LIST_VENDOR_API: "https://quanlysim.vn/api/list-vendor",
+        SEND_MESSAGE_BET_API: "https://quanlysim.vn/api/send-message-bet",
+        UPDATE_TYPE_VENDOR: "https://quanlysim.vn/api/update-type-vendor",
+        SENT_TOKEN_BET_API: "https://quanlysim.vn/api/token-bet-telegram",
+    }
+};
 const getAllData = async () => {
-    const url = 'https://quanlysim.vn/api/list-vendor';
-    // const url = 'https://quanlysim.vn/api/list-vendor';
+    const url = CONFIG[ENVIRONMENT].LIST_VENDOR_API;
 
     const response = await fetch(url);
 
@@ -117,7 +134,7 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
 
 // Hàm gửi API khi tất cả các tab đã đóng
 async function sendCompletionApi() {
-    const apiUrl = 'https://quanlysim.vn/api/send-message-bet';
+    const apiUrl = CONFIG[ENVIRONMENT].SEND_MESSAGE_BET_API;
     try {
         const response = await fetch(apiUrl, {
             method: 'GET',
@@ -183,7 +200,7 @@ function isValidUrl(url) {
 
 // Hàm gửi thông tin về API khi URL không truy cập được
 async function reportInvalidUrl(domain) {
-    const apiUrl = 'https://quanlysim.vn/api/update-type-vendor';
+    const apiUrl = CONFIG[ENVIRONMENT].UPDATE_TYPE_VENDOR;
     try {
         const response = await fetch(apiUrl, {
             method: 'POST',
