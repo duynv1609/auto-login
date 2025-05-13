@@ -318,7 +318,7 @@ async function autoLogin(obj) {
                 return; // Exit the function to prevent further execution after reload
             }
         }
-        if (attemptsInput === 5){
+        if (attemptsInput === 4){
             chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
                 console.log("Request to close tab sent to background script.");
             });
