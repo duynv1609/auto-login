@@ -340,6 +340,12 @@ async function autoLogin(obj) {
             attemptsLoginBtn++;
             console.log(`Attempt ${attemptsLoginBtn}: Login span ${loginSpan ? 'found' : 'not found'}`);
         }
+        if (attemptsLoginBtn === 4)
+        {
+            chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+                console.log("Request to close tab sent to background script.");
+            });
+        }
         if (loginSpan) {
             await sleep(10000);
             loginSpan.click();
