@@ -246,6 +246,7 @@ async function autoLogin(obj) {
     try {
         closeButton = document.querySelector('div.close') ||
             document.querySelector('i.mps-close') ||
+            document.querySelector('div.standard-modal-close') ||
             document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
         if (closeButton) {
             closeButton.click();
@@ -268,11 +269,98 @@ async function autoLogin(obj) {
     // alert(siteNote);
 
     await sleep(2000);
+    if (nameSite === "CMD")
+    {
+        let closeButtonCMD = null;
+        try {
+            closeButtonCMD = document.querySelector('div.close') ||
+                document.querySelector('i.mps-close') ||
+                document.querySelector('div.standard-modal-close') ||
+                document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
+            if (closeButtonCMD) {
+                closeButtonCMD.click();
+                console.log("Clicked close button (div.close, i.mps-close, or btn-link)");
+            } else {
+                console.log("Close button not found");
+            }
+        } catch (error) {
+            console.log("Error finding close button:", error);
+        }
+        console.log(nameSite);
+        let modalLoginFormBtnCMD = null;
+        let attemptsModalCMD = 0;
+        while (!modalLoginFormBtnCMD && attemptsModalCMD < 3) {
+            await sleep(5000);
+            modalLoginFormBtnCMD = document.querySelector('div.header-btn.login') ||
+                document.querySelector('button.btnLogin');
+            attemptsModalCMD++;
+            console.log(`Attempt ${attemptsModalCMD}: Login button ${modalLoginFormBtnCMD ? 'found' : 'not found'}`);
+        }
+        if (modalLoginFormBtnCMD) {
+            await sleep(3000);
+            modalLoginFormBtnCMD.click();
+            console.log("Clicked login button with class ng-scope");
+        }
+        await sleep(3000000);
+        console.log("Waited 3 seconds before filling inputs");
+
+        let accountInputCMD = null;
+        let passwordInputCMD = null;
+        var attemptsInputCMD = 0;
+        while ((!accountInputCMD || !passwordInputCMD) && attemptsInputCMD < 5) {
+            await sleep(1000);
+            accountInputCMD = document.querySelector('input#login');
+            passwordInputCMD = document.querySelector('input#password');
+            attemptsInputCMD++;
+            console.log(attemptsInputCMD);
+            console.log(`Attempt ${attemptsInputCMD}: Account input ${accountInputCMD ? 'found' : 'not found'}, Password input ${passwordInputCMD ? 'found' : 'not found'}`);
+            if (attemptsInputCMD > 3) {
+                await sleep(15000)
+                console.log("Attempts reached 3, reloading the page to recheck.");
+                location.reload();
+                return; // Exit the function to prevent further execution after reload
+            }
+        }
+        console.log(attemptsInputCMD);
+        if (accountInputCMD) simulateInput(accountInputCMD, userName);
+        if (passwordInputCMD) simulateInput(passwordInputCMD, passWord); // Thay 'xyz' bằng mật khẩu thực tế
+        console.log("CLMM CMD")
+        await sleep(4000);
+
+        // Nhấp vào nút ĐĂNG NHẬP
+        // await sleep(2000);
+        console.log("Waited 2 seconds before clicking login span");
+
+        let loginSpan = null;
+        let attemptsLoginBtn = 0;
+        while (!loginSpan && attemptsLoginBtn < 5) {
+            await sleep(4000);
+            loginSpan = document.querySelector('button.header-btn');
+            attemptsLoginBtn++;
+            console.log(`Attempt ${attemptsLoginBtn}: Login span ${loginSpan ? 'found' : 'not found'}`);
+        }
+        if (attemptsLoginBtn === 4)
+        {
+            chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+                console.log("Request to close tab sent to background script.");
+            });
+            return true;
+        }
+        console.log("Clicked login loginSpan");
+        if (loginSpan) {
+            await sleep(10000);
+            loginSpan.click();
+            console.log("Clicked login loginSpan");
+        }
+        await sleep(500000);
+    }
+
     if (nameSite === "78WIN" || nameSite === "JUN88") {
         let closeButton = null;
         try {
             closeButton = document.querySelector('div.close') ||
                 document.querySelector('i.mps-close') ||
+                document.querySelector('div.standard-modal-close') ||
                 document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
             if (closeButton) {
                 closeButton.click();
@@ -289,6 +377,7 @@ async function autoLogin(obj) {
         while (!modalLoginFormBtn && attemptsModal < 3) {
             await sleep(5000);
             modalLoginFormBtn = document.querySelector('div.header-btn.login') ||
+                document.querySelector('button.btnLogin') ||
                 document.querySelector('a.btn-big.login');
             attemptsModal++;
             console.log(`Attempt ${attemptsModal}: Login button ${modalLoginFormBtn ? 'found' : 'not found'}`);
@@ -333,7 +422,7 @@ async function autoLogin(obj) {
         let attemptsLoginBtn = 0;
         while (!loginSpan && attemptsLoginBtn < 5) {
             await sleep(4000);
-            loginSpan = document.querySelector('button.nrc-button');
+            loginSpan = document.querySelector('button.nrc-button') || document.querySelector('button.header-btn');
             attemptsLoginBtn++;
             console.log(`Attempt ${attemptsLoginBtn}: Login span ${loginSpan ? 'found' : 'not found'}`);
         }
