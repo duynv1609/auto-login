@@ -1,4 +1,4 @@
-const ENVIRONMENT = "production"; // Thay thành "production" khi deploy
+const ENVIRONMENT = "local"; // Thay thành "production" khi deploy
 
 const CONFIG = {
     local: {
@@ -201,6 +201,15 @@ async function autoLogin(obj) {
     const siteNote = obj.note;
 
     let newAuthToken = "";
+    if (nameSite === "CMD"){
+        const newAuthToken = document.cookie
+            .split('; ')
+            .find(cookie => cookie.startsWith('t='));
+        console.log("newAuthToken CMD: ", newAuthToken);
+        console.log(newAuthToken);
+    }
+    console.log("newAuthToken: ", newAuthToken);
+    await sleep(4000);
     const authToken = getAuthToken();
     await sleep(4000);
     if (authToken != null && authToken !== "") {
@@ -301,7 +310,6 @@ async function autoLogin(obj) {
             modalLoginFormBtnCMD.click();
             console.log("Clicked login button with class ng-scope");
         }
-        await sleep(3000000);
         console.log("Waited 3 seconds before filling inputs");
 
         let accountInputCMD = null;
