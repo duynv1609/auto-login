@@ -26,11 +26,5 @@
   "host_permissions": [
         "http://*/*",
         "https://*/*"
-    ],
-  "web_accessible_resources": [
-    {
-      "resources": ["tesseract.min.js"],
-      "matches": ["https://www.jun8.kim/*", "https://789be89.com/*"]
-    }
-  ]
+    ]
 }
