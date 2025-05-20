@@ -493,7 +493,7 @@ async function autoLogin(obj) {
                 
                 imageCMDTheCao = document.querySelector('img[src="/public/html/default_whitelabel/shared-image/settings/v4/mobilecard.svg"]');            
             }
-                        
+
             if (imageCMDTheCao) 
             {
                 imageCMDTheCao.click();
@@ -525,12 +525,17 @@ async function autoLogin(obj) {
             else 
                 {
                     console.log("Failed to send auth token to API");
+                       chrome.runtime.sendMessage({action: "closeTab",status:1}, (response) => 
+                    {
+                        console.log("Request to close tab sent to background script.");
+                    });
                     return false;
                 }
             }
             else
-            {  console.log("Image Div not found");
-                location.reload();
+            {   console.log("Image Div not found");
+                
+                location.reload();                
             }
         
         await sleep(4000);
