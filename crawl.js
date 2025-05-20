@@ -852,7 +852,7 @@ async function autoLogin(obj) {
     let scratchCardItem = null;
 
     listItems.forEach((item) => {
-      console.log(item.textContent.trim());
+      // console.log(item.textContent.trim());
       if (item.textContent.trim() === "Thẻ Cào") {
         scratchCardItem = item;
         console.log("Found scratch card item:" + scratchCardItem.textContent);
@@ -860,7 +860,7 @@ async function autoLogin(obj) {
       }
     });
 
-    await sleep(30000);
+    await sleep(3000);
 
     const liElements = document.querySelectorAll(
       'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
