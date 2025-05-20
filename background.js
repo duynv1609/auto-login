@@ -1,4 +1,4 @@
-const ENVIRONMENT = "local"; // Thay thành "production" khi deploy
+const ENVIRONMENT = "production"; // Thay thành "production" khi deploy
 
 const CONFIG = {
     local: {
@@ -8,6 +8,13 @@ const CONFIG = {
         SENT_TOKEN_BET_API: "https://bantkg.test/api/token-bet-telegram",
         UPDATE_TYPE_VENDOR: "https://bantkg.test/api/update-type-vendor",
     },
+    // local: {
+    //     API_BASE_URL: "192.168.1.206:8000",
+    //     LIST_VENDOR_API: "192.168.1.206:8000/api/list-vendor",
+    //     SEND_MESSAGE_BET_API: "192.168.1.206:8000/api/send-message-bet",
+    //     SENT_TOKEN_BET_API: "192.168.1.206:8000/api/token-bet-telegram",
+    //     UPDATE_TYPE_VENDOR: "192.168.1.206:8000/api/update-type-vendor",
+    // },
     production: {
         API_BASE_URL: "https://quanlysim.vn",
         LIST_VENDOR_API: "https://quanlysim.vn/api/list-vendor",
@@ -125,6 +132,7 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
         console.log(`Tab closed, tab ID: ${tabId}. Remaining tabs: ${openedTabs.length}`);
     }
 
+
     // Kiểm tra nếu tất cả các tab đã đóng
     if (openedTabs.length === 0) {
         console.log("All tabs have been closed!");
@@ -172,12 +180,24 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         });  
         }
        }
-       else
+   else if(sender.tab.url.includes("mb669i"))
+       {
+           console.log("Close request status mb669:", request.status);
+        if(request.status==1)
+        { 
+          console.log("Close mb669 tab");
+          chrome.tabs.remove(sender.tab.id, () => 
+        {
+          console.log(`Tab closed via message, tab ID: ${sender.tab.id}`);
+        });  
+        }
+       }       
+    else
        {
         chrome.tabs.remove(sender.tab.id, () => {
             console.log(`Tab closed via message, tab ID: ${sender.tab.id}`);
         });
-}
+       }
     
     
     }

@@ -1,4 +1,4 @@
-const ENVIRONMENT = "local"; // Thay thành "production" khi deploy
+const ENVIRONMENT = "production"; // Thay thành "production" khi deploy
 
 const CONFIG = {
   local: {
@@ -8,6 +8,13 @@ const CONFIG = {
     SENT_TOKEN_BET_API: "https://bantkg.test/api/token-bet-telegram",
     UPDATE_TYPE_VENDOR: "https://bantkg.test/api/update-type-vendor",
   },
+  // local: {
+  //     API_BASE_URL: "192.168.1.206:8000",
+  //     LIST_VENDOR_API: "192.168.1.206:8000/api/list-vendor",
+  //     SEND_MESSAGE_BET_API: "192.168.1.206:8000/api/send-message-bet",
+  //     SENT_TOKEN_BET_API: "192.168.1.206:8000/api/token-bet-telegram",
+  //     UPDATE_TYPE_VENDOR: "192.168.1.206:8000/api/update-type-vendor",
+  // },
   production: {
     API_BASE_URL: "https://quanlysim.vn",
     LIST_VENDOR_API: "https://quanlysim.vn/api/list-vendor",
@@ -148,64 +155,29 @@ async function getTekcorePositionJUN88CMD(nameCheck) {
   );
   if (!container) {
     console.log("Container not found");
-    return -1;
+    return { bankList: [], position: -1 };
   }
-
+  console.log(container);
   const bankContainers = container.querySelectorAll(
     "div.standard-bank-container.container-show-with-bank-image-and-text"
   );
-  console.log(bankContainers, "lít element nè");
-  sleep(2000000);
+  const paymentOptions = [];
+  document.querySelectorAll(".standard-radio-content-label").forEach((el) => {
+    paymentOptions.push(el.innerText.trim());
+  });
+  await sleep(2000);
   let position = -1;
-
   Array.from(bankContainers).forEach((bank, index) => {
     const label = bank.querySelector("span.standard-radio-content-label");
-    if (label && label.textContent.trim() === nameCheck) {
-      position = index + 1; // Vị trí bắt đầu từ 1
+    const labelText = label ? label.textContent.trim() : "";
+    console.log(labelText, "CAC");
+    if (labelText === nameCheck) {
+      position = index + 1;
     }
   });
-
-  console.log(`Thẻ Cào TEKCORE is at position: ${position}`);
+  await sleep(2000);
   return position;
 }
-
-async function loginJUN88CMD(currentUrl, nameCheck) {
-  let btnNapTien = document.querySelector("a.deposit-btn.css-xgccq");
-  await sleep(3000);
-  if (btnNapTien) {
-    btnNapTien.click();
-    console.log("Clicked button deposit");
-    await sleep(5000);
-    const imageCMDTheCao = document.querySelector(
-      'img[src="/public/html/default_whitelabel/shared-image/settings/v4/mobilecard.svg"]'
-    );
-    if (imageCMDTheCao) {
-      imageCMDTheCao.click();
-      console.log("OK NHA");
-      // Gọi trong autoLogin, ví dụ sau clickMobileCardImage
-      console.log(nameCheck);
-      await sleep(3000);
-      const tekcorePosition = await getTekcorePositionJUN88CMD(nameCheck);
-      console.log(tekcorePosition);
-      if (tekcorePosition === -1) {
-        console.warn("Thẻ Cào TEKCORE not found in list");
-      }
-      console.log("VI TRI CMD: ", tekcorePosition);
-      const apiSuccess = await sendAuthTokenToApi(currentUrl, tekcorePosition);
-      if (apiSuccess) {
-        console.log("Successfully sent auth token to API");
-        return true;
-      } else {
-        console.log("Failed to send auth token to API");
-        return false;
-      }
-    }
-  } else {
-    console.log("Button deposit not found");
-    return true;
-  }
-}
-
 
 async function autoLogin(obj) {
   const currentUrl = obj.domain;
@@ -262,13 +234,8 @@ async function autoLogin(obj) {
 
   //======================START JUN88 CMD=============================
   if (nameSite === "CMD") {
-    let newAuthTokenCMD = "";
-    newAuthTokenCMD = document.cookie
-      .split("; ")
-      .find((cookie) => cookie.startsWith("t="));
-    await sleep(2000);
-
-    if (newAuthTokenCMD == undefined) {
+    let btnNapTien = document.querySelector("a.deposit-btn.css-xgccq");
+    if (btnNapTien == null) {
       let closeButtonCMD = null;
       try {
         closeButtonCMD =
@@ -288,6 +255,7 @@ async function autoLogin(obj) {
         console.log("Error finding close button:", error);
       }
       console.log(nameSite);
+
       let modalLoginFormBtnCMD = null;
       let attemptsModalCMD = 0;
       while (!modalLoginFormBtnCMD && attemptsModalCMD < 3) {
@@ -334,7 +302,8 @@ async function autoLogin(obj) {
       if (accountInputCMD) simulateInput(accountInputCMD, userName);
       if (passwordInputCMD) simulateInput(passwordInputCMD, passWord); // Thay 'xyz' bằng mật khẩu thực tế
       console.log("CLMM CMD");
-      await sleep(1000);
+      await sleep(2000);
+      passwordInputCMD.focus();
 
       // Nhấp vào nút ĐĂNG NHẬP
       console.log("Waited 2 seconds before clicking login span");
@@ -361,62 +330,107 @@ async function autoLogin(obj) {
       }
       console.log("Clicked login loginSpan");
       if (loginSpan) {
-        return;
-      }
-      await sleep(3000);
-      let btnNapTien = document.querySelector("a.deposit-btn.css-xgccq");
-      await sleep(2000);
-      if (btnNapTien) {
-        btnNapTien.click();
-        console.log("Clicked button deposit");
-        await sleep(3000);
-        const imageCMDTheCao = document.querySelector(
-          'img[src="/public/html/default_whitelabel/shared-image/settings/v4/mobilecard.svg"]'
-        );
-        if (imageCMDTheCao) {
-          imageCMDTheCao.click();
-          console.log("OK NHA");
-          // Gọi trong autoLogin, ví dụ sau clickMobileCardImage
-          console.log(nameCheck);
-          await sleep(3000);
-          const tekcorePosition = await getTekcorePositionJUN88CMD(nameCheck);
-          console.log(tekcorePosition);
-          if (tekcorePosition === -1) {
-            console.warn("Thẻ Cào TEKCORE not found in list");
-          }
-          console.log("VI TRI CMD: ", tekcorePosition);
-          const apiSuccess = await sendAuthTokenToApi(
-            currentUrl,
-            tekcorePosition
-          );
-          if (apiSuccess) {
-            console.log("Successfully sent auth token to API");
-            // Đóng tab sau khi gửi API
-            console.log("Sent token request success : ", currentUrl);
-            chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
-              console.log("Request to close tab sent to background script.");
-            });
-            return true; // Thoát hàm nếu đã gửi token
-          } else {
-            console.log("Failed to send auth token to API");
-            return false;
-          }
-        }
-      } else {
-        console.log("Button deposit not found");
-        // Đóng tab sau khi gửi API
-        await sleep(4000);
-        console.log("Sent token request success : ", currentUrl);
-        chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
-          console.log("Request to close tab sent to background script.");
+        await sleep(5000);
+
+        const clickEvent = new MouseEvent("click", {
+          view: window,
+          bubbles: true,
+          cancelable: true,
+          clientX: 100,
+          clientY: 100,
         });
-        return true; // Thoát hàm nếu đã gửi token
+
+        loginSpan.dispatchEvent(clickEvent);
+
+        await sleep(5000);
+        // console.log("Clicked login loginSpan");
+        // return;
       }
-      await sleep(4000);
     }
+    //======Ở TRÊN LÀ HÀNH ĐỘNG LOGIN========
+
+    await sleep(3000);
+    if (btnNapTien != null) {
+      btnNapTien.click();
+      console.log("Clicked button deposit");
+      await sleep(5000);
+    } else {
+      console.log("Button deposit not found");
+
+      location.reload();
+      // chrome.runtime.sendMessage({ action: "refreshPage" });
+      // Đóng tab sau khi gửi API
+      await sleep(400000);
+      console.log("Sent token request success : ", currentUrl);
+      chrome.runtime.sendMessage(
+        { action: "closeTab", status: 1 },
+        (response) => {
+          console.log("Request to close tab sent to background script.");
+        }
+      );
+      return true; // Thoát hàm nếu đã gửi token
+    }
+
+    const count_img_div = 0;
+    const imageCMDTheCao = document.querySelector(
+      'img[src="/public/html/default_whitelabel/shared-image/settings/v4/mobilecard.svg"]'
+    );
+    while (imageCMDTheCao == null && count_img_div < 4) {
+      count_img_div += 1;
+
+      imageCMDTheCao = document.querySelector(
+        'img[src="/public/html/default_whitelabel/shared-image/settings/v4/mobilecard.svg"]'
+      );
+    }
+
+    if (imageCMDTheCao) {
+      imageCMDTheCao.click();
+
+      console.log("OK NHA");
+      // Gọi trong autoLogin, ví dụ sau clickMobileCardImage
+      console.log(nameCheck);
+      await sleep(3000);
+
+      const position = await getTekcorePositionJUN88CMD(nameCheck);
+      console.log("VI TRI CMD NHA DCMM: ", position);
+      await sleep(3000);
+
+      if (position === -1) {
+        console.warn("Thẻ Cào TEKCORE not found in list");
+      }
+      const apiSuccess = await sendAuthTokenToApi(currentUrl, position);
+      if (apiSuccess) {
+        console.log("Successfully sent auth token to API");
+        // Đóng tab sau khi gửi API
+        console.log("Sent token request success : ", currentUrl);
+        chrome.runtime.sendMessage(
+          { action: "closeTab", status: 1 },
+          (response) => {
+            console.log("Request to close tab sent to background script.");
+          }
+        );
+        return true; // Thoát hàm nếu đã gửi token
+      } else {
+        console.log("Failed to send auth token to API");
+        chrome.runtime.sendMessage(
+          { action: "closeTab", status: 1 },
+          (response) => {
+            console.log("Request to close tab sent to background script.");
+          }
+        );
+        return false;
+      }
+    } else {
+      console.log("Image Div not found");
+
+      location.reload();
+    }
+
+    await sleep(4000);
   }
   //======================END JUN88 CMD=============================
-  console.log("TRANG NÀY ĐÉO PHẢI CỦA JUN CMD RỒI");
+
+  //console.log("TRANG NÀY ĐÉO PHẢI CỦA JUN CMD RỒI");
 
   if (nameSite === "78WIN" || nameSite === "JUN88") {
     let closeButton = null;
@@ -441,7 +455,7 @@ async function autoLogin(obj) {
     let modalLoginFormBtn = null;
     let attemptsModal = 0;
     while (!modalLoginFormBtn && attemptsModal < 3) {
-      await sleep(5000);
+      await sleep(1000);
       modalLoginFormBtn =
         document.querySelector("div.header-btn.login") ||
         document.querySelector("button.btnLogin") ||
@@ -454,76 +468,159 @@ async function autoLogin(obj) {
       );
     }
     if (modalLoginFormBtn) {
-      await sleep(3000);
+      await sleep(1000);
       modalLoginFormBtn.click();
       console.log("Clicked login button with class ng-scope");
     }
 
     await sleep(3000);
+    var authToken = getAuthToken();
     console.log("Waited 3 seconds before filling inputs");
+    console.log("Auth token found:", authToken);
+    if (authToken == null || authToken == "") {
+      let accountInput = null;
+      let passwordInput = null;
+      var attemptsInput = 0;
+      while ((!accountInput || !passwordInput) && attemptsInput < 5) {
+        await sleep(500);
+        accountInput = document.querySelector("input#login");
+        passwordInput = document.querySelector("input#password");
+        attemptsInput++;
+        console.log(attemptsInput);
+        console.log(
+          `Attempt ${attemptsInput}: Account input ${
+            accountInput ? "found" : "not found"
+          }, Password input ${passwordInput ? "found" : "not found"}`
+        );
+        if (attemptsInput > 3) {
+          console.log("Attempts reached 3, reloading the page to recheck.");
+          location.reload();
+        }
+      }
 
-    let accountInput = null;
-    let passwordInput = null;
-    var attemptsInput = 0;
-    while ((!accountInput || !passwordInput) && attemptsInput < 5) {
-      await sleep(1000);
-      accountInput = document.querySelector("input#login");
-      passwordInput = document.querySelector("input#password");
-      attemptsInput++;
       console.log(attemptsInput);
-      console.log(
-        `Attempt ${attemptsInput}: Account input ${
-          accountInput ? "found" : "not found"
-        }, Password input ${passwordInput ? "found" : "not found"}`
-      );
-      if (attemptsInput > 3) {
-        await sleep(15000);
-        console.log("Attempts reached 3, reloading the page to recheck.");
-        location.reload();
-        return; // Exit the function to prevent further execution after reload
+      if (accountInput) simulateInput(accountInput, userName);
+      if (passwordInput) simulateInput(passwordInput, passWord); // Thay 'xyz' bằng mật khẩu thực tế
+      console.log("CLMMM");
+      await sleep(4000);
+
+      // Nhấp vào nút ĐĂNG NHẬP
+      // await sleep(2000);
+      console.log("Waited 2 seconds before clicking login span");
+      if (accountInput && passwordInput) {
+        console.log("Login already");
+        let loginSpan = null;
+        let attemptsLoginBtn = 0;
+        while (!loginSpan && attemptsLoginBtn < 5) {
+          await sleep(1000);
+          loginSpan =
+            document.querySelector("button.nrc-button") ||
+            document.querySelector("button.header-btn");
+          attemptsLoginBtn++;
+          console.log(
+            `Attempt ${attemptsLoginBtn}: Login span ${
+              loginSpan ? "found" : "not found"
+            }`
+          );
+        }
+        if (attemptsLoginBtn === 4) {
+          chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+            console.log("Request to close tab sent to background script.");
+          });
+          return true;
+        }
+        console.log("Clicked login loginSpan");
+
+        if (loginSpan) {
+          await sleep(1000);
+
+          loginSpan.click();
+
+          loginSpan =
+            document.querySelector("button.nrc-button") ||
+            document.querySelector("button.header-btn");
+
+          attemptsLoginBtn = 0;
+
+          while (loginSpan != null && attemptsLoginBtn < 20) {
+            loginSpan.click();
+
+            attemptsLoginBtn++;
+
+            loginSpan =
+              document.querySelector("button.nrc-button") ||
+              document.querySelector("button.header-btn");
+
+            await sleep(500);
+          }
+          console.log("Clicked login loginSpan");
+        }
       }
     }
-    console.log(attemptsInput);
-    if (accountInput) simulateInput(accountInput, userName);
-    if (passwordInput) simulateInput(passwordInput, passWord); // Thay 'xyz' bằng mật khẩu thực tế
-    console.log("CLMMM");
-    await sleep(4000);
 
-    // Nhấp vào nút ĐĂNG NHẬP
-    // await sleep(2000);
-    console.log("Waited 2 seconds before clicking login span");
+    console.log("Did login jun88k2");
 
-    let loginSpan = null;
-    let attemptsLoginBtn = 0;
-    while (!loginSpan && attemptsLoginBtn < 5) {
-      await sleep(4000);
-      loginSpan =
-        document.querySelector("button.nrc-button") ||
-        document.querySelector("button.header-btn");
-      attemptsLoginBtn++;
-      console.log(
-        `Attempt ${attemptsLoginBtn}: Login span ${
-          loginSpan ? "found" : "not found"
-        }`
-      );
+    const navItems = document.querySelectorAll("li > a");
+
+    navItems.forEach((link) => {
+      if (link.textContent.trim() === "Nạp tiền") {
+        link.click();
+      }
+    });
+
+    await sleep(3000);
+
+    const depositItems = document.querySelectorAll(".deposit-list-item");
+
+    if (depositItems == null) {
+      console.log("Deposit items not found");
+      return false;
     }
-    if (attemptsLoginBtn === 4) {
+
+    await sleep(5000);
+
+    console.log("Deposit item found");
+    depositItems.forEach((item) => {
+      const heading = item.querySelector("h3");
+      if (heading && heading.textContent.trim().toUpperCase() === "THẺ CÀO") {
+        console.log("Item found:" + item.textContent.trim());
+        item.click();
+      }
+    });
+
+    await sleep(3000);
+
+    const listItems = document.querySelectorAll("ul > li.mc-collection-option");
+
+    let position_ctek = -1;
+
+    listItems.forEach((item, index) => {
+      const nameDiv = item.querySelector(".mc-collection-name");
+      if (nameDiv && nameDiv.textContent.trim().includes(nameCheck)) {
+        position_ctek = index + 1; // Index starts from 0
+      }
+    });
+
+    if (position_ctek === -1) {
+      console.warn("Thẻ Cào TEKCORE not found in list");
+    }
+    console.log("VI TRI CMD: ", position_ctek);
+    const apiSuccess = await sendAuthTokenToApi(currentUrl, position_ctek);
+    if (apiSuccess) {
+      console.log("Successfully sent auth token to API");
+
+      console.log("Sent token request success : ", currentUrl);
       chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
         console.log("Request to close tab sent to background script.");
       });
-      return true;
+      return true; // Thoát hàm nếu đã gửi token
+    } else {
+      console.log("Failed to send auth token to API");
+      chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+        console.log("Request to close tab sent to background script.");
+      });
+      return false;
     }
-    console.log("Clicked login loginSpan");
-    if (loginSpan) {
-      await sleep(10000);
-      loginSpan.click();
-      console.log("Clicked login loginSpan");
-    }
-    await sleep(3000);
-    newAuthToken = localStorage.getItem("token") || "";
-    newAuthToken = newAuthToken.replace(/"/g, "");
-    console.log(newAuthToken);
-    await sleep(5000);
   }
   //789BET || MB66
   else {
@@ -572,229 +669,250 @@ async function autoLogin(obj) {
 
     await sleep(1000);
     // alert("da dien xong thong tin tai khoan va mat khau tai trang:   " + currentUrl);
-    // await sleep(10000000);
 
-    let captchaInput = null;
-    attempts = 0;
-    while (!captchaInput && attempts < 3) {
-      await sleep(1000);
-      captchaInput = document.querySelector(".ng-pristine");
-      attempts++;
-      console.log(
-        `Attempt ${attempts}: CAPTCHA input ${
-          captchaInput ? "found" : "not found"
-        }`
-      );
-      await sleep(2000);
-    }
-    console.log("Captcha input found:", captchaInput);
-    if (captchaInput) {
-      let captchaImage = null;
-      await sleep(2000);
-      captchaInput.dispatchEvent(new Event("mousedown", { bubbles: true }));
-      captchaInput.dispatchEvent(new FocusEvent("focus", { bubbles: true }));
-      captchaInput.focus();
-      await sleep(2000);
-      console.log("Clicked CAPTCHA image to refresh");
-      captchaImage = document.querySelector(
-        'img[ng-class="$ctrl.styles.captcha"][ng-click="$ctrl.refreshCaptcha()"]'
-      );
-      const base64Src = captchaImage
-        ? captchaImage.getAttribute("ng-src") ||
-          captchaImage.getAttribute("src")
-        : null;
-      console.log(base64Src, captchaImage);
-      await sleep(2000);
-      if (!base64Src) {
-        location.reload();
+    if (accountInput != null && passwordInput != null) {
+      console.log("account input is:" + accountInput);
+      console.log("In this solve captcha");
+      let captchaInput = null;
+      attempts = 0;
+      while (!captchaInput && attempts < 3) {
+        await sleep(1000);
+        captchaInput = document.querySelector(".ng-pristine");
+        attempts++;
+        console.log(
+          `Attempt ${attempts}: CAPTCHA input ${
+            captchaInput ? "found" : "not found"
+          }`
+        );
+        await sleep(2000);
       }
-      await sleep(2000);
-      if (base64Src && base64Src.startsWith("data:image/")) {
-        const captchaText = await solveCaptcha(base64Src);
-        // await sleep(200000000); //TEST
-        // const captchaText = '45455';
-        // console.log("CAPTCHA TEXT la:", captchaText);
+      console.log("Captcha input found:", captchaInput);
+      if (captchaInput) {
+        let captchaImage = null;
+        await sleep(2000);
+        captchaInput.dispatchEvent(new Event("mousedown", { bubbles: true }));
+        captchaInput.dispatchEvent(new FocusEvent("focus", { bubbles: true }));
+        captchaInput.focus();
+        await sleep(2000);
+        console.log("Clicked CAPTCHA image to refresh");
+        captchaImage = document.querySelector(
+          'img[ng-class="$ctrl.styles.captcha"][ng-click="$ctrl.refreshCaptcha()"]'
+        );
+        const base64Src = captchaImage
+          ? captchaImage.getAttribute("ng-src") ||
+            captchaImage.getAttribute("src")
+          : null;
+        console.log(base64Src, captchaImage);
+        await sleep(2000);
+        if (!base64Src) {
+          location.reload();
+        }
+        await sleep(2000);
+        if (base64Src && base64Src.startsWith("data:image/")) {
+          const captchaText = await solveCaptcha(base64Src);
+          // await sleep(200000000); //TEST
+          // const captchaText = '45455';
+          // console.log("CAPTCHA TEXT la:", captchaText);
 
-        if (captchaText) {
-          console.log("STEP 1");
-          simulateInput(captchaInput, captchaText);
-          console.log("Filled CAPTCHA input with value:", captchaText);
+          if (captchaText) {
+            console.log("STEP 1");
+            simulateInput(captchaInput, captchaText);
+            console.log("Filled CAPTCHA input with value:", captchaText);
 
-          // Nhấp vào nút ĐĂNG NHẬP
-          await sleep(2000);
-          console.log("Waited 2 seconds before clicking login span");
-
-          let loginSpan = null;
-          let attemptsLoginSpan = 0;
-          while (!loginSpan && attemptsLoginSpan < 5) {
-            await sleep(1000);
-            loginSpan = document.querySelector(
-              'span[ng-if="!$ctrl.loginPending"][translate="Shared_Login"].ng-scope'
-            );
-            attemptsLoginSpan++;
-            console.log(
-              `Attempt ${attemptsLoginSpan}: Login span ${
-                loginSpan ? "found" : "not found"
-              }`
-            );
-          }
-
-          if (loginSpan) {
-            console.log("STEP 2");
-            localStorage.setItem(siteNote, true);
-            loginSpan.click();
-
-            console.log("Clicked login span with class ng-scope");
-
-            // Kiểm tra thông báo lỗi
+            // Nhấp vào nút ĐĂNG NHẬP
             await sleep(2000);
-            console.log("Checking for error message");
-            console.log("STEP 3");
-            await sleep(2000);
-            let errorDiv = null;
-            let attemptsDivFoundModalErr = 0;
-            while (!errorDiv && attemptsDivFoundModalErr < 3) {
-              await sleep(1000);
-              errorDiv = document.querySelector(
-                'div[bind-html-compile="$ctrl.content"]'
+            console.log("Waited 2 seconds before clicking login span");
+
+            let loginSpan = null;
+            let attemptsLoginSpan = 0;
+            while (!loginSpan && attemptsLoginSpan < 3) {
+              await sleep(100);
+              loginSpan = document.querySelector(
+                'span[ng-if="!$ctrl.loginPending"][translate="Shared_Login"].ng-scope'
               );
-              // if (accountInput) simulateInput(accountInput, "pinkman00789");
-              // if (passwordInput) simulateInput(passwordInput, "Qj6g7FVYGEW"); // Thay 'xyz' bằng mật khẩu thực tế
-              attemptsDivFoundModalErr++;
+              attemptsLoginSpan++;
               console.log(
-                `Attempt ${attemptsDivFoundModalErr}: Error div ${
-                  errorDiv ? "found" : "not found"
+                `Attempt ${attemptsLoginSpan}: Login span ${
+                  loginSpan ? "found" : "not found"
                 }`
               );
-              console.log("STEP 5");
             }
 
-            if (errorDiv) {
-              console.log(errorDiv.textContent.trim());
-              var textErr = errorDiv.textContent.trim();
-              if (
-                textErr ==
-                "Tài khoản này đang bị vô hiệu hóa, vui lòng liên hệ với bộ phận chăm sóc khách hàng"
-              ) {
-                chrome.runtime.sendMessage(
-                  { action: "closeTab" },
-                  (response) => {
-                    console.log(
-                      "Request to close tab sent to background script."
-                    );
-                  }
+            if (loginSpan) {
+              console.log("STEP 2");
+              localStorage.setItem(siteNote, true);
+              loginSpan.click();
+
+              console.log("Clicked login span with class ng-scope");
+
+              // Kiểm tra thông báo lỗi
+              await sleep(2000);
+              console.log("Checking for error message");
+              console.log("STEP 3");
+              await sleep(2000);
+              let errorDiv = null;
+              let attemptsDivFoundModalErr = 0;
+              while (!errorDiv && attemptsDivFoundModalErr < 3) {
+                await sleep(1000);
+                errorDiv = document.querySelector(
+                  'div[bind-html-compile="$ctrl.content"]'
                 );
-                return true;
+                // if (accountInput) simulateInput(accountInput, "pinkman00789");
+                // if (passwordInput) simulateInput(passwordInput, "Qj6g7FVYGEW"); // Thay 'xyz' bằng mật khẩu thực tế
+                attemptsDivFoundModalErr++;
+                console.log(
+                  `Attempt ${attemptsDivFoundModalErr}: Error div ${
+                    errorDiv ? "found" : "not found"
+                  }`
+                );
+                console.log("STEP 5");
               }
-              location.reload();
-            }
-            await sleep(3000);
-            var deposit_btn = document.querySelector('a[href="/Deposit"]');
-            var count_click = 0;
-            while (deposit_btn == null && count_click < 5) {
-              await sleep(1000);
-              deposit_btn = document.querySelector('a[href="/Deposit"]');
-              count_click++;
-              console.log(
-                "Attempt " +
-                  count_click +
-                  ": Deposit button " +
-                  (deposit_btn ? "found" : "not found")
-              );
-            }
-            if (deposit_btn == null) {
-              location.reload();
-              return false;
-            }
-            deposit_btn.click();
-            await sleep(1000);
-            var imageCMDTheCao = document.querySelector(
-              'li[ng-repeat="item in $ctrl.payments"][ng-if="item.visible"] span[translate="OnlineDeposit_Scratch"]'
-            ).parentElement;
-            count_click = 0;
-            while (imageCMDTheCao == null && count_click < 5) {
-              await sleep(1000);
-              imageCMDTheCao = document.querySelector(
-                'li[ng-repeat="item in $ctrl.payments"][ng-if="item.visible"] span[translate="OnlineDeposit_Scratch"]'
-              ).parentElement;
-              count_click++;
-              console.log(
-                "Attempt " +
-                  count_click +
-                  ": Deposit button " +
-                  (imageCMDTheCao ? "found" : "not found")
-              );
-            }
-            if (imageCMDTheCao == null) {
-              location.reload();
-              return false;
-            }
-            imageCMDTheCao.click();
-            await sleep(1000);
 
-            const liElements = document.querySelectorAll(
-              'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
-            );
-
-            count_click = 0;
-
-            while (liElements.length == 0 && count_click < 5) {
-              await sleep(1000);
-              liElements = document.querySelectorAll(
-                'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
-              );
-              count_click++;
-              console.log(
-                "Attempt " +
-                  count_click +
-                  ": Deposit button " +
-                  (liElements.length > 0 ? "found" : "not found")
-              );
-            }
-            let position_ctek = -1;
-            liElements.forEach((liElement, index) => {
-              const h3Element = liElement.querySelector("h3");
-              if (h3Element && h3Element.textContent.trim().includes("CTEK")) {
-                position_ctek = index + 1;
+              if (errorDiv) {
+                console.log(errorDiv.textContent.trim());
+                var textErr = errorDiv.textContent.trim();
+                if (
+                  textErr ==
+                  "Tài khoản này đang bị vô hiệu hóa, vui lòng liên hệ với bộ phận chăm sóc khách hàng"
+                ) {
+                  chrome.runtime.sendMessage(
+                    { action: "closeTab", status: 1 },
+                    (response) => {
+                      console.log(
+                        "Request to close tab sent to background script."
+                      );
+                    }
+                  );
+                  return true;
+                }
+                location.reload();
               }
-            });
-            if (position_ctek === -1) {
-              console.warn("Thẻ Cào TEKCORE not found in list");
             }
-            console.log("VI TRI CMD: ", position_ctek);
-            const apiSuccess = await sendAuthTokenToApi(
-              currentUrl,
-              position_ctek
-            );
-            if (apiSuccess) {
-              console.log("Successfully sent auth token to API");
-              // Đóng tab sau khi gửi API
-              console.log("Sent token request success : ", currentUrl);
-              chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
-                console.log("Request to close tab sent to background script.");
-              });
-              return true; // Thoát hàm nếu đã gửi token
-            } else 
-            {
-              console.log("Failed to send auth token to API");
-              chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
-                console.log("Request to close tab sent to background script.");
-              });
-              return false;
-            }
+          } else {
+            console.log("Failed to solve CAPTCHA");
+            location.reload();
           }
         } else {
-          console.log("Failed to solve CAPTCHA");
+          console.log("Invalid or missing base64 src for CAPTCHA image");
           location.reload();
         }
       } else {
-        console.log("Invalid or missing base64 src for CAPTCHA image");
+        console.log("CAPTCHA input not found after 15 attempts");
         location.reload();
       }
-    } else 
-    {
-      console.log("CAPTCHA input not found after 15 attempts");
-      location.reload();
+    }
+
+    console.log("Url:" + currentUrl);
+
+    if (siteNote == "SH232" ||siteNote == "HI8823" || siteNote == "F8BET" || siteNote == "NEW88" ) {
+      const deposit_btn = document.querySelector('button[ui-sref="deposit"]');
+
+      if (deposit_btn) {
+        deposit_btn.click();
+      } else {
+        return false;
+      }
+    } else {
+      var deposit_btn =
+        document.querySelector('a[href="/Deposit"]') ||
+        document.querySelector('button[href="/Deposit"]');
+      var count_click = 0;
+      while (deposit_btn == null && count_click < 5) {
+        await sleep(1000);
+        deposit_btn =
+          document.querySelector('a[href="/Deposit"]') ||
+          document.querySelector('button[href="/Deposit"]');
+        count_click++;
+        console.log(
+          "Attempt " +
+            count_click +
+            ": Deposit button " +
+            (deposit_btn ? "found" : "not found")
+        );
+      }
+      if (deposit_btn == null) {
+        chrome.runtime.sendMessage(
+          { action: "closeTab", status: 1 },
+          (response) => {
+            console.log("Request to close tab sent to background script.");
+          }
+        );
+        return false;
+      }
+
+      deposit_btn.click();
+    }
+
+    await sleep(3000);
+
+    const listItems = document.querySelectorAll("ul li");
+
+    console.log(listItems);
+    console.log("CC");
+    let scratchCardItem = null;
+
+    listItems.forEach((item) => {
+      console.log(item.textContent.trim());
+      if (item.textContent.trim() === "Thẻ Cào") {
+        scratchCardItem = item;
+        console.log("Found scratch card item:" + scratchCardItem.textContent);
+        scratchCardItem.click();
+      }
+    });
+
+    await sleep(30000);
+
+    const liElements = document.querySelectorAll(
+      'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
+    );
+
+    count_click = 0;
+
+    while (liElements.length == 0 && count_click < 5) {
+      await sleep(1000);
+      liElements = document.querySelectorAll(
+        'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
+      );
+      count_click++;
+      console.log(
+        "Attempt " +
+          count_click +
+          ": Deposit button " +
+          (liElements.length > 0 ? "found" : "not found")
+      );
+    }
+    let position_ctek = -1;
+    liElements.forEach((liElement, index) => {
+      const h3Element = liElement.querySelector("h3");
+      if (h3Element && h3Element.textContent.trim().includes(nameCheck)) {
+        position_ctek = index + 1;
+      }
+    });
+    if (position_ctek === -1) {
+      console.warn("Thẻ Cào TEKCORE not found in list");
+    }
+    console.log("VI TRI CMD: ", position_ctek);
+    const apiSuccess = await sendAuthTokenToApi(currentUrl, position_ctek);
+    if (apiSuccess) {
+      console.log("Successfully sent auth token to API");
+      // Đóng tab sau khi gửi API
+      console.log("Sent token request success : ", currentUrl);
+      chrome.runtime.sendMessage(
+        { action: "closeTab", status: 1 },
+        (response) => {
+          console.log("Request to close tab sent to background script.");
+        }
+      );
+      return true; // Thoát hàm nếu đã gửi token
+    } else {
+      console.log("Failed to send auth token to API");
+      chrome.runtime.sendMessage(
+        { action: "closeTab", status: 1 },
+        (response) => {
+          console.log("Request to close tab sent to background script.");
+        }
+      );
+      return false;
     }
   }
   console.log("DJT ME MAY TAO DANG O DAY:", newAuthToken);
@@ -825,6 +943,52 @@ async function autoLogin(obj) {
   });
   return true;
 }
+
+async function sendAuthTokenToApi(betDomain, betPosition) {
+  let apiUrlSentToken = CONFIG[ENVIRONMENT].SENT_TOKEN_BET_API;
+  console.log(CONFIG[ENVIRONMENT].SENT_TOKEN_BET_API);
+  console.log(betDomain);
+  console.log(betPosition);
+  console.log("DCMM TAO CHUẨN BỊ GỬI TOKEN NÈ");
+  await sleep(3000);
+  try {
+    const response = await fetch(apiUrlSentToken, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        betDomain: betDomain,
+        betPosition: betPosition,
+      }),
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      console.error(
+        `Failed to send auth token to API: ${response.status}, Response: ${text}`
+      );
+      await sleep(5000);
+      return false;
+    }
+    // Kiểm tra Content-Type để đảm bảo là JSON
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      console.error(`API returned non-JSON response: ${text}`);
+      await sleep(5000);
+      return false;
+    }
+    const result = await response.json();
+    console.log("API response:", result);
+    await sleep(5000);
+    return true;
+  } catch (error) {
+    console.error("Error sending auth token to API:", error);
+    await sleep(5000);
+    return false;
+  }
+}
+
 async function loginExecute() {
   console.log("Executing loginExecute function");
   const currentUrl = window.location.href;
