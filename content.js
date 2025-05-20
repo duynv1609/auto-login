@@ -454,7 +454,7 @@ async function autoLogin(obj) {
       clientY: 100
     });
 
-    loginSpan.dispatchEvent(clickEvent);
+    loginSpan.dispatchEvent(clickEvent);    
 
     await sleep(8000);
             // console.log("Clicked login loginSpan");
@@ -462,11 +462,14 @@ async function autoLogin(obj) {
         }
         //window.location.href = currentUrl+"/vi-vn/myaccount/deposit";
         await sleep(5000);        
+        
         let btnNapTien = document.querySelector('a.deposit-btn.css-xgccq');
+        
         await sleep(3000);
+
         if (btnNapTien!=null) 
         {
-            btnNapTien.click();
+            btnNapTien.click();            
             console.log("Clicked button deposit");
             await sleep(5000);
         }
