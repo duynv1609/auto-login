@@ -1,12 +1,12 @@
-const ENVIRONMENT = "production"; // Thay thành "production" khi deploy
+const ENVIRONMENT = "local"; // Thay thành "production" khi deploy
 
 const CONFIG = {
     local: {
-        API_BASE_URL: "https://bantkg.test",
-        LIST_VENDOR_API: "https://bantkg.test/api/list-vendor",
-        SEND_MESSAGE_BET_API: "https://bantkg.test/api/send-message-bet",
-        SENT_TOKEN_BET_API: "https://bantkg.test/api/token-bet-telegram",
-        UPDATE_TYPE_VENDOR: "https://bantkg.test/api/update-type-vendor",
+        API_BASE_URL: "http://192.168.1.206:8000",
+        LIST_VENDOR_API: "http://192.168.1.206:8000/api/list-vendor",
+        SEND_MESSAGE_BET_API: "http://192.168.1.206:8000/api/send-message-bet",
+        SENT_TOKEN_BET_API: "http://192.168.1.206:8000/api/token-bet-telegram",
+        UPDATE_TYPE_VENDOR: "http://192.168.1.206:8000/api/update-type-vendor",
     },
     production: {
         API_BASE_URL: "https://quanlysim.vn",
@@ -62,6 +62,8 @@ const getAllData = async () => {
 // );
 
 
+
+
 chrome.runtime.onInstalled.addListener(() => {
     console.log("Extension installed, setting alarm for 5 minutes");
     chrome.alarms.create("loginExecute",
@@ -91,6 +93,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         const urls = [];
         for (let i = 0; i < data.length; i++) {
             var obj = data[i];
+            
             var url = obj.domain;
 
             // Kiểm tra URL có truy cập được không
@@ -118,7 +121,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
     // Xóa tab ID khỏi mảng khi tab bị đóng
     const index = openedTabs.indexOf(tabId);
-    if (index > -1) {
+    if (index > -1) 
+    {
         openedTabs.splice(index, 1);
         console.log(`Tab closed, tab ID: ${tabId}. Remaining tabs: ${openedTabs.length}`);
     }
@@ -128,6 +132,7 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
         console.log("All tabs have been closed!");
         // Thực hiện hành động khi tất cả các tab đã đóng
         sendCompletionApi();
+        
     }
 });
 
@@ -157,10 +162,38 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         console.log("Sending cached data to content script:", cachedData);
         sendResponse({ data: cachedData || [] }); // Đảm bảo luôn gửi một mảng (không undefined)
     } else if (request.action === "closeTab" && sender.tab) {
+        console.log("Received request to close tab:", sender.tab.id);
+       console.log("Closing tabytt66:", sender.tab);
+       if(sender.tab.url.includes("jun888h"))
+       {
+         console.log("Close request status:", request.status);
+        if(request.status==1)
+        { console.log("Close jun88h tab");
+          chrome.tabs.remove(sender.tab.id, () => {
+            console.log(`Tab closed via message, tab ID: ${sender.tab.id}`);
+        });  
+        }
+       }
+       else
+       {
         chrome.tabs.remove(sender.tab.id, () => {
             console.log(`Tab closed via message, tab ID: ${sender.tab.id}`);
         });
-    } else {
+}
+    
+    
+    }
+    else if(request.action === "refreshPage")
+    {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        function: refreshPage
+      });
+    });
+    }
+    
+    else {
         console.error("Unknown action received:", request.action);
     }
     return true; // Để giữ kết nối mở cho sendResponse
