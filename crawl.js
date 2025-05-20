@@ -360,7 +360,7 @@ async function autoLogin(obj) {
       location.reload();
       // chrome.runtime.sendMessage({ action: "refreshPage" });
       // Đóng tab sau khi gửi API
-      await sleep(400000);
+      await sleep(4000);
       console.log("Sent token request success : ", currentUrl);
       chrome.runtime.sendMessage(
         { action: "closeTab", status: 1 },
