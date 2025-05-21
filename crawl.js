@@ -602,7 +602,7 @@ async function autoLogin(obj) {
                   const channelDiv = li.querySelector("div.channel-wrap");
                   if (
                     channelDiv &&
-                    channelDiv.getAttribute("value") === "TEKCOREPAY"
+                    channelDiv.getAttribute("value") === nameCheck
                   ) {
                     channelDiv.click();
                     positionTEKCORE = i + 1; // vị trí bắt đầu từ 1
