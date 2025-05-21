@@ -602,7 +602,7 @@ async function autoLogin(obj) {
                   const channelDiv = li.querySelector("div.channel-wrap");
                   if (
                     channelDiv &&
-                    channelDiv.getAttribute("value") === "TEKCOREPAY"
+                    channelDiv.getAttribute("value") === nameCheck
                   ) {
                     channelDiv.click();
                     positionTEKCORE = i + 1; // vị trí bắt đầu từ 1
@@ -668,7 +668,8 @@ async function autoLogin(obj) {
 
   //console.log("TRANG NÀY ĐÉO PHẢI CỦA JUN CMD RỒI");
 
-  if (nameSite === "78WIN" || nameSite === "JUN88") {
+  if (nameSite === "78WIN" || nameSite === "JUN88") 
+  {
     let closeButton = null;
     try {
       closeButton =
@@ -867,6 +868,263 @@ async function autoLogin(obj) {
       });
       return false;
     }
+  }
+  else if(nameSite.includes("qq8876"))
+  {
+    let loginButtonQ88=null;
+    let attempts=0;
+    while(!loginButtonQ88 && attempts<3)
+    {
+      await sleep(500);
+      loginButtonQ88= document.querySelector('.register-btn');
+      attempts++;
+      console.log(`Attempt ${attempts}: Login button ${loginButtonQ88 ? "found" : "not found"}`);
+    }
+    if(loginButtonQ88)
+    {
+      loginButtonQ88.click();
+      console.log("Clicked login button q88");
+      await sleep(1000);
+    }
+
+    let accountInput = null;
+    let passwordInput = null;
+
+    attempts = 0;
+    while ((!accountInput || !passwordInput) && attempts < 5) {
+      await sleep(1000);
+      accountInput =document.querySelector('input[name="username"]');
+      
+      passwordInput = document.querySelector('input[name="password"]');
+      attempts++;
+      console.log(
+        `Attempt ${attempts}: Account input ${
+          accountInput ? "found" : "not found"
+        }, Password input ${passwordInput ? "found" : "not found"}`
+      );
+    }
+    if (accountInput) simulateInput(accountInput, userName);
+    if (passwordInput) simulateInput(passwordInput, passWord); 
+
+    await sleep(1000);
+
+   if (accountInput != null && passwordInput != null) {
+      console.log("account input is:" + accountInput);
+      console.log("In this solve captcha");
+      let captchaInput = null;
+      attempts = 0;
+      while (!captchaInput && attempts < 3) {
+        await sleep(1000);
+        captchaInput =  document.querySelector('input[name="captcha"]');
+        attempts++;
+        console.log(
+          `Attempt ${attempts}: CAPTCHA input ${
+            captchaInput ? "found" : "not found"
+          }`
+        );
+        await sleep(2000);
+      }
+      console.log("Captcha input found:", captchaInput);
+      if (captchaInput) {
+        let captchaImage = null;
+        captchaInput.dispatchEvent(new Event("mousedown", { bubbles: true }));
+        captchaInput.dispatchEvent(new FocusEvent("focus", { bubbles: true }));
+        captchaInput.focus();
+        await sleep(2000);
+        console.log("Clicked CAPTCHA image to refresh");
+        const captchaDiv = document.querySelector('.captcha_box');
+        captchaImage = captchaDiv.querySelector('img');
+        if(captchaImage)
+        {
+          console.log("Captcha image found");
+        }
+        const base64Src = captchaImage
+          ? captchaImage.getAttribute("ng-src") ||
+            captchaImage.getAttribute("src")
+          : null;
+        console.log(base64Src, captchaImage);
+        await sleep(2000);
+        if (!base64Src) {
+          location.reload();
+        }
+        await sleep(2000);
+        if (base64Src && base64Src.startsWith("data:image/")) 
+          {
+          const captchaText = await solveCaptcha(base64Src);
+          // await sleep(200000000); //TEST
+          // const captchaText = '45455';
+          // console.log("CAPTCHA TEXT la:", captchaText);
+
+          if (captchaText) {
+            console.log("STEP 1");
+            simulateInput(captchaInput, captchaText);
+            console.log("Filled CAPTCHA input with value:", captchaText);
+
+            // Nhấp vào nút ĐĂNG NHẬP
+            await sleep(2000);
+            console.log("Waited 2 seconds before clicking login span");
+
+            let loginSpan = null;
+            let attemptsLoginSpan = 0;
+            while (!loginSpan && attemptsLoginSpan < 3) {
+              await sleep(100);
+              
+              loginSpan = Array.from(document.querySelectorAll('button.submit_btn'))
+  .find(btn => btn.textContent.trim() === 'Đăng nhập');
+              attemptsLoginSpan++;
+              console.log(
+                `Attempt ${attemptsLoginSpan}: Login span ${
+                  loginSpan ? "found" : "not found"
+                }`
+              );
+            }
+
+            if (loginSpan) {
+              console.log("Login button is found");
+              console.log("STEP 2");
+              localStorage.setItem(siteNote, true);
+              loginSpan.click();
+
+              console.log("Clicked login span in q88");
+
+              // Kiểm tra thông báo lỗi
+              await sleep(2000);
+              console.log("Checking for error message");
+              console.log("STEP 3");
+              await sleep(2000);
+              let errorDiv = null;
+              let attemptsDivFoundModalErr = 0;
+              while (!errorDiv && attemptsDivFoundModalErr < 3) {
+                await sleep(1000);
+                errorDiv =document.querySelector('.pp_model_dbhtml');
+                // if (accountInput) simulateInput(accountInput, "pinkman00789");
+                // if (passwordInput) simulateInput(passwordInput, "Qj6g7FVYGEW"); // Thay 'xyz' bằng mật khẩu thực tế
+                attemptsDivFoundModalErr++;
+                console.log(
+                  `Attempt ${attemptsDivFoundModalErr}: Error div ${
+                    errorDiv ? "found" : "not found"
+                  }`
+                );
+                console.log("STEP 5");
+              }
+
+              if (errorDiv) {
+                console.log(errorDiv.textContent.trim());
+                var textErr = errorDiv.textContent.trim();
+                if (
+                  textErr.includes("vô hiệu hóa") || textErr.includes("bị khóa")
+                ) {
+                  chrome.runtime.sendMessage(
+                    { action: "closeTab", status: 1 },
+                    (response) => {
+                      console.log(
+                        "Request to close tab sent to background script."
+                      );
+                    }
+                  );
+                  return true;
+                }
+                location.reload();
+              }
+            }
+          } else {
+            console.log("Failed to solve CAPTCHA");
+            location.reload();
+          }
+        } else {
+          console.log("Invalid or missing base64 src for CAPTCHA image");
+          location.reload();
+        }
+      } else {
+        console.log("CAPTCHA input not found after 15 attempts");
+        location.reload();
+      }
+    }
+
+    await sleep(500);
+
+    const deposit_button= Array.from(document.querySelectorAll('div.header-item.deposit'))
+  .find(el => el.textContent.trim() === 'Nạp Tiền');
+
+  if(deposit_button)
+  {
+    deposit_button.click();
+  }
+  else
+  {
+    return false;
+  }
+         await sleep(5000);
+             const bankDivs = document.querySelectorAll("div.bankname");
+
+              bankDivs.forEach((divCon) => {
+                const firstChildDiv = divCon.querySelector("div");
+                if (
+                  firstChildDiv &&
+                  firstChildDiv.textContent.trim() === "Thẻ cào điện thoại"
+                ) {
+                  divCon.click();
+                  console.log('Đã click vào div chứa "Thẻ cào điện thoại"');
+                }
+              });
+              await sleep(2000);
+              const ul = document.querySelector("ul#depositAllVendor");
+              let positionTEKCORE = -1;
+
+              if (ul) {
+                const liList = ul.querySelectorAll("li");
+                for (let i = 0; i < liList.length; i++) {
+                  const li = liList[i];
+                  const channelDiv = li.querySelector("div.channel-wrap");
+                  if (
+                    channelDiv &&
+                    channelDiv.getAttribute("value") === nameCheck
+                  ) {
+                    channelDiv.click();
+                    positionTEKCORE = i + 1; // vị trí bắt đầu từ 1
+                    console.log(
+                      "Clicked channel-wrap with value TEKCOREPAY, position:",
+                      positionTEKCORE
+                    );
+                    break; // chỉ click 1 lần, nếu muốn click hết thì bỏ break
+                  }
+                }
+                if (positionTEKCORE === -1) {
+                  console.warn("Không tìm thấy TEKCOREPAY trong danh sách");
+                }
+              } else {
+                console.log("ul#depositAllVendor not found");
+              }
+              console.log("VI TRI CMD: ", positionTEKCORE);
+              const apiSuccess = await sendAuthTokenToApi(
+                currentUrl,
+                positionTEKCORE
+              );
+              if (apiSuccess) {
+                console.log("Successfully sent auth token to API");
+                // Đóng tab sau khi gửi API
+                console.log("Sent token request success : ", currentUrl);
+                chrome.runtime.sendMessage(
+                  { action: "closeTab", status: 1 },
+                  (response) => {
+                    console.log(
+                      "Request to close tab sent to background script."
+                    );
+                  }
+                );
+                return true; // Thoát hàm nếu đã gửi token
+              } else {
+                console.log("Failed to send auth token to API");
+                chrome.runtime.sendMessage(
+                  { action: "closeTab", status: 1 },
+                  (response) => {
+                    console.log(
+                      "Request to close tab sent to background script."
+                    );
+                  }
+                );
+                return false;
+              }
   }
   //789BET || MB66
   else {
