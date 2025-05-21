@@ -663,7 +663,6 @@ async function autoLogin(obj) {
         location.reload();
       }
     }
-    }
   }
   //======================END R88=============================
 
