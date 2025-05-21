@@ -1,4 +1,4 @@
-const ENVIRONMENT = "production"; // Thay thành "production" khi deploy
+const ENVIRONMENT = "local"; // Thay thành "production" khi deploy
 
 const CONFIG = {
     local: {

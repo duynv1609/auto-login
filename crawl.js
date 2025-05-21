@@ -1,4 +1,4 @@
-const ENVIRONMENT = "production"; // Thay thành "production" khi deploy
+const ENVIRONMENT = "local"; // Thay thành "production" khi deploy
 
 const CONFIG = {
   local: {
@@ -211,6 +211,7 @@ async function autoLogin(obj) {
       document.querySelector("div.close") ||
       document.querySelector("i.mps-close") ||
       document.querySelector("div.standard-modal-close") ||
+      document.querySelector("div.tcg_modal_close") ||
       document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
     if (closeButton) {
       closeButton.click();
@@ -430,6 +431,242 @@ async function autoLogin(obj) {
   }
   //======================END JUN88 CMD=============================
 
+  //======================START HI88=============================
+  console.log("nameSite:", nameSite);
+  if (nameSite === "HI88") {
+    console.log("Clicked login button with class ng-scope");
+    await sleep(5000000);
+    // https://www.qq8827.com/m/index.html
+  }
+  //======================END HI88=============================
+
+  //======================START R88=============================
+  if (nameSite === "R88") {
+    let modalLoginFormBtnR88 = null;
+    let attemptsModalR88 = 0;
+    while (!modalLoginFormBtnR88 && attemptsModalR88 < 3) {
+      await sleep(5000);
+      modalLoginFormBtnR88 = document.querySelector("div .submit_btn");
+      attemptsModalR88++;
+      console.log(
+        `Attempt ${attemptsModalR88}: Login button ${
+          modalLoginFormBtnR88 ? "found" : "not found"
+        }`
+      );
+    }
+    if (modalLoginFormBtnR88) {
+      await sleep(3000);
+      modalLoginFormBtnR88.click();
+      console.log("Clicked login button with class ng-scope");
+    }
+    console.log("Waited 3 seconds before filling inputs");
+
+    let accountInputR88 = null;
+    let passwordInputR88 = null;
+    var attemptsInputR88 = 0;
+    while ((!accountInputR88 || !passwordInputR88) && attemptsInputR88 < 5) {
+      await sleep(1000);
+      accountInputR88 = document.querySelector("input.username_input");
+      passwordInputR88 = document.querySelector("input.password_input");
+      attemptsInputR88++;
+      console.log(attemptsInputR88);
+      console.log(
+        `Attempt ${attemptsInputR88}: Account input ${
+          accountInputR88 ? "found" : "not found"
+        }, Password input ${passwordInputR88 ? "found" : "not found"}`
+      );
+      if (attemptsInputR88 > 3) {
+        await sleep(15000);
+        console.log("Attempts reached 3, reloading the page to recheck.");
+        location.reload();
+        return; // Exit the function to prevent further execution after reload
+      }
+    }
+    console.log("DMM CUT");
+    console.log(attemptsInputR88);
+    if (accountInputR88) simulateInput(accountInputR88, userName);
+    if (passwordInputR88) simulateInput(passwordInputR88, passWord); // Thay 'xyz' bằng mật khẩu thực tế
+    console.log("CLMM");
+    await sleep(2000);
+    passwordInputR88.focus();
+
+    if (accountInputR88 != null && passwordInputR88 != null) {
+      console.log("account input is:" + accountInputR88);
+      console.log("In this solve captcha");
+      let captchaInput = null;
+      attempts = 0;
+      while (!captchaInput && attempts < 3) {
+        await sleep(1000);
+        captchaInput = document.querySelector(".captcha_input");
+        attempts++;
+        console.log(
+          `Attempt ${attempts}: CAPTCHA input ${
+            captchaInput ? "found" : "not found"
+          }`
+        );
+        await sleep(2000);
+      }
+      console.log("Captcha input found:", captchaInput);
+      if (captchaInput) {
+        let captchaImage = null;
+        await sleep(2000);
+        captchaInput.dispatchEvent(new Event("mousedown", { bubbles: true }));
+        captchaInput.dispatchEvent(new FocusEvent("focus", { bubbles: true }));
+        captchaInput.focus();
+        await sleep(2000);
+        console.log("Clicked CAPTCHA image to refresh");
+        captchaImage = document.querySelector("div.captcha_box > img");
+        const base64Src = captchaImage.getAttribute("src");
+        console.log(base64Src, captchaImage);
+        await sleep(2000);
+        if (!base64Src) {
+          location.reload();
+        }
+        await sleep(2000);
+        if (base64Src && base64Src.startsWith("data:image/")) {
+          const captchaText = await solveCaptcha(base64Src);
+          // await sleep(200000000); //TEST
+          // const captchaText = '45455';
+          // console.log("CAPTCHA TEXT la:", captchaText);
+
+          if (captchaText) {
+            console.log("STEP 1");
+            simulateInput(captchaInput, captchaText);
+            console.log("Filled CAPTCHA input with value:", captchaText);
+
+            // Nhấp vào nút ĐĂNG NHẬP
+            await sleep(2000);
+            console.log("Waited 2 seconds before clicking login span");
+
+            let loginSpan = null;
+            let attemptsLoginSpan = 0;
+            while (!loginSpan && attemptsLoginSpan < 3) {
+              await sleep(100);
+              loginSpan = document.querySelector("button.submit_btn");
+              attemptsLoginSpan++;
+              console.log(
+                `Attempt ${attemptsLoginSpan}: Login span ${
+                  loginSpan ? "found" : "not found"
+                }`
+              );
+            }
+
+            if (loginSpan) {
+              console.log("STEP 2");
+              localStorage.setItem(siteNote, true);
+              loginSpan.click();
+              console.log("Clicked login btn r88");
+              await sleep(3000);
+              let closeButton = null;
+              try {
+                closeButton = document.querySelector("div.tcg_modal_close");
+                if (closeButton) {
+                  closeButton.click();
+                  console.log(
+                    "Clicked close button (div.close, i.mps-close, or btn-link)"
+                  );
+                } else {
+                  console.log("Close button not found");
+                }
+              } catch (error) {
+                console.log("Error finding close button:", error);
+              }
+              await sleep(2000);
+              let depositBtnClick = document.querySelector("div.deposit-btn");
+              if (depositBtnClick !== null) {
+                depositBtnClick.click();
+                console.log("Clicked deposit button");
+              }
+              await sleep(2000);
+              // Tìm tất cả các div có class bankname
+              const bankDivs = document.querySelectorAll("div.bankname");
+
+              bankDivs.forEach((divCon) => {
+                const firstChildDiv = divCon.querySelector("div");
+                if (
+                  firstChildDiv &&
+                  firstChildDiv.textContent.trim() === "Thẻ cào điện thoại"
+                ) {
+                  divCon.click();
+                  console.log('Đã click vào div chứa "Thẻ cào điện thoại"');
+                }
+              });
+              await sleep(2000);
+              const ul = document.querySelector("ul#depositAllVendor");
+              let positionTEKCORE = -1;
+
+              if (ul) {
+                const liList = ul.querySelectorAll("li");
+                for (let i = 0; i < liList.length; i++) {
+                  const li = liList[i];
+                  const channelDiv = li.querySelector("div.channel-wrap");
+                  if (
+                    channelDiv &&
+                    channelDiv.getAttribute("value") === "TEKCOREPAY"
+                  ) {
+                    channelDiv.click();
+                    positionTEKCORE = i + 1; // vị trí bắt đầu từ 1
+                    console.log(
+                      "Clicked channel-wrap with value TEKCOREPAY, position:",
+                      positionTEKCORE
+                    );
+                    break; // chỉ click 1 lần, nếu muốn click hết thì bỏ break
+                  }
+                }
+                if (positionTEKCORE === -1) {
+                  console.warn("Không tìm thấy TEKCOREPAY trong danh sách");
+                }
+              } else {
+                console.log("ul#depositAllVendor not found");
+              }
+              console.log("VI TRI CMD: ", positionTEKCORE);
+              const apiSuccess = await sendAuthTokenToApi(
+                currentUrl,
+                positionTEKCORE
+              );
+              if (apiSuccess) {
+                console.log("Successfully sent auth token to API");
+                // Đóng tab sau khi gửi API
+                console.log("Sent token request success : ", currentUrl);
+                chrome.runtime.sendMessage(
+                  { action: "closeTab", status: 1 },
+                  (response) => {
+                    console.log(
+                      "Request to close tab sent to background script."
+                    );
+                  }
+                );
+                return true; // Thoát hàm nếu đã gửi token
+              } else {
+                console.log("Failed to send auth token to API");
+                chrome.runtime.sendMessage(
+                  { action: "closeTab", status: 1 },
+                  (response) => {
+                    console.log(
+                      "Request to close tab sent to background script."
+                    );
+                  }
+                );
+                return false;
+              }
+            }
+          } else {
+            console.log("Failed to solve CAPTCHA R88");
+            location.reload();
+          }
+        } else {
+          console.log("Invalid or missing base64 src for CAPTCHA image R88");
+          location.reload();
+        }
+      } else {
+        console.log("CAPTCHA input not found after 15 attempts R88");
+        location.reload();
+      }
+    }
+    }
+  }
+  //======================END R88=============================
+
   //console.log("TRANG NÀY ĐÉO PHẢI CỦA JUN CMD RỒI");
 
   if (nameSite === "78WIN" || nameSite === "JUN88") {
@@ -557,18 +794,24 @@ async function autoLogin(obj) {
         }
       }
     }
-
+    await sleep(3000);
     console.log("Did login jun88k2");
 
-    const navItems = document.querySelectorAll("li > a");
-
+    let navItems = "";
+    if (nameSite == "78WIN") {
+      navItems = document.querySelectorAll("ul.logined-nav li");
+    } else {
+      navItems = document.querySelectorAll("li > a");
+    }
+    await sleep(3000);
+    console.log(navItems, "MENU");
     navItems.forEach((link) => {
       if (link.textContent.trim() === "Nạp tiền") {
         link.click();
       }
     });
 
-    await sleep(3000);
+    await sleep(1000);
 
     const depositItems = document.querySelectorAll(".deposit-list-item");
 
@@ -577,7 +820,7 @@ async function autoLogin(obj) {
       return false;
     }
 
-    await sleep(5000);
+    await sleep(3000);
 
     console.log("Deposit item found");
     depositItems.forEach((item) => {
@@ -588,7 +831,7 @@ async function autoLogin(obj) {
       }
     });
 
-    await sleep(3000);
+    await sleep(5000);
 
     const listItems = document.querySelectorAll("ul > li.mc-collection-option");
 
@@ -596,10 +839,14 @@ async function autoLogin(obj) {
 
     listItems.forEach((item, index) => {
       const nameDiv = item.querySelector(".mc-collection-name");
+
       if (nameDiv && nameDiv.textContent.trim().includes(nameCheck)) {
         position_ctek = index + 1; // Index starts from 0
       }
     });
+    console.log(position_ctek, "TÌM ĐƯỢC VỊ TRÍ RỒI NHA DCMM");
+
+    await sleep(1000);
 
     if (position_ctek === -1) {
       console.warn("Thẻ Cào TEKCORE not found in list");
@@ -804,7 +1051,12 @@ async function autoLogin(obj) {
 
     console.log("Url:" + currentUrl);
 
-    if (siteNote == "SH232" ||siteNote == "HI8823" || siteNote == "F8BET" || siteNote == "NEW88" ) {
+    if (
+      siteNote == "SH232" ||
+      siteNote == "HI8823" ||
+      siteNote == "F8BET" ||
+      siteNote == "NEW88"
+    ) {
       const deposit_btn = document.querySelector('button[ui-sref="deposit"]');
 
       if (deposit_btn) {
@@ -1020,7 +1272,9 @@ async function loginExecute() {
         note: curr_obj.note,
         name_check: curr_obj.name_check,
       };
+      console.log("Current object:", obj);
       const result = await autoLogin(obj);
+
       if (!result) {
         console.log("Login failed, reloading page");
         location.reload(); // Reload sẽ không gọi lại getAllData
