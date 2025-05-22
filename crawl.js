@@ -140,8 +140,10 @@ async function solveCaptcha(base64Src) {
       });
       return false; // Thoát hàm nếu đã gửi token
     }
-  } catch (error) {
-    chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
+  } catch(error) 
+  {  
+    chrome.runtime.sendMessage({ action: "closeTab" }, (response) => 
+    {
       console.log("Request to close tab sent to background script.");
     });
     return false; // Thoát hàm nếu đã gửi token
@@ -149,33 +151,58 @@ async function solveCaptcha(base64Src) {
 }
 
 // Hàm gửi authToken tới API
-async function getTekcorePositionJUN88CMD(nameCheck) {
-  const container = document.querySelector(
-    "div.standard-form-field.standard-deposit-select-option-full.undefined"
-  );
-  if (!container) {
-    console.log("Container not found");
-    return { bankList: [], position: -1 };
-  }
-  console.log(container);
-  const bankContainers = container.querySelectorAll(
-    "div.standard-bank-container.container-show-with-bank-image-and-text"
-  );
-  const paymentOptions = [];
-  document.querySelectorAll(".standard-radio-content-label").forEach((el) => {
-    paymentOptions.push(el.innerText.trim());
-  });
-  await sleep(2000);
+function getTekcorePositionJUN88CMD(nameCheck) 
+{  
+  console.log("did in this getTEKCORE function rồi nha:"+nameCheck);
+  
   let position = -1;
-  Array.from(bankContainers).forEach((bank, index) => {
-    const label = bank.querySelector("span.standard-radio-content-label");
-    const labelText = label ? label.textContent.trim() : "";
-    console.log(labelText, "CAC");
-    if (labelText === nameCheck) {
-      position = index + 1;
-    }
-  });
-  await sleep(2000);
+
+  try
+{
+  const bankContainers = document.querySelectorAll('.standard-bank-container');
+bankContainers.forEach((container, index) => {
+  if (container.textContent.includes(nameCheck)) {
+    position = index + 1;
+    console.log(`Found "Thẻ cào TEKCORE" in standard-bank-container at position: ${position}`);
+  }
+});
+
+if (position === -1) {
+  console.log('No standard-bank-container with "Thẻ cào TEKCORE" found');
+}
+  // const container = document.querySelector(
+  //   "div.standard-form-field.standard-deposit-select-option-full.undefined"
+  // );
+  // if (!container) {
+  //   console.log("Container not found");
+  //   return { bankList: [], position: -1 };
+  // }
+  // console.log(container);
+  // const bankContainers = container.querySelectorAll(
+  //   "div.standard-bank-container.container-show-with-bank-image-and-text"
+  // );
+  // const paymentOptions = [];
+  // document.querySelectorAll(".standard-radio-content-label").forEach((el) => {
+  //   paymentOptions.push(el.innerText.trim());
+  // });
+  // await sleep(2000);
+  // let position = -1;
+  // Array.from(bankContainers).forEach((bank, index) => {
+  //   const label = bank.querySelector("span.standard-radio-content-label");
+  //   const labelText = label ? label.textContent.trim() : "";
+  //   console.log(labelText, "CAC");
+    
+  //   if (labelText === nameCheck) 
+  //   {
+  //     position = index + 1;
+  //   }
+  // });
+  
+  // await sleep(2000);
+}
+catch (error) {
+  console.log("Error in getTekcorePositionJUN88CMD:", error);
+}
   return position;
 }
 
@@ -188,6 +215,7 @@ async function autoLogin(obj) {
   const nameCheck = obj.name_check;
 
   console.log("Processing deposit page " + nameSite);
+  
   await sleep(2000);
 
   let close_second_button = null;
@@ -333,6 +361,8 @@ async function autoLogin(obj) {
       if (loginSpan) {
         await sleep(5000);
 
+
+
         const clickEvent = new MouseEvent("click", {
           view: window,
           bubbles: true,
@@ -361,57 +391,93 @@ async function autoLogin(obj) {
       location.reload();
       // chrome.runtime.sendMessage({ action: "refreshPage" });
       // Đóng tab sau khi gửi API
-      await sleep(4000);
-      console.log("Sent token request success : ", currentUrl);
-      chrome.runtime.sendMessage(
-        { action: "closeTab", status: 1 },
-        (response) => {
-          console.log("Request to close tab sent to background script.");
-        }
-      );
-      return true; // Thoát hàm nếu đã gửi token
+      // await sleep(4000);
+      // console.log("Sent token request success : ", currentUrl);
+      // chrome.runtime.sendMessage(
+      //   { action: "closeTab", status: 1 },
+      //   (response) => {
+      //     console.log("Request to close tab sent to background script.");
+      //   }
+      // );
+      // return true; // Thoát hàm nếu đã gửi token
     }
 
     const count_img_div = 0;
-    const imageCMDTheCao = document.querySelector(
-      'img[src="/public/html/default_whitelabel/shared-image/settings/v4/mobilecard.svg"]'
-    );
+
+    const imageCMDTheCao = document.querySelectorAll('.bank-option-icon');
+
+    imageCMDTheCao.forEach((img) => 
+      {
+        if (img.src.includes("mobilecard.svg")) {
+          img.click();
+          console.log("Clicked image CMD roi nha");
+          console.log("OK NHA");
+          // Gọi trong autoLogin, ví dụ sau clickMobileCardImage
+          console.log(nameCheck);
+        }
+      });
+    
     while (imageCMDTheCao == null && count_img_div < 4) {
+      
       count_img_div += 1;
 
-      imageCMDTheCao = document.querySelector(
-        'img[src="/public/html/default_whitelabel/shared-image/settings/v4/mobilecard.svg"]'
-      );
-    }
+    imageCMDTheCao = document.querySelectorAll('.bank-option-icon');
+
+    imageCMDTheCao.forEach((img) => 
+      {
+        if (img.src.includes("mobilecard.svg")) {
+          img.click();
+          console.log("Clicked image CMD roi nha");
+          console.log("OK NHA");
+          // Gọi trong autoLogin, ví dụ sau clickMobileCardImage
+          console.log(nameCheck);
+        }
+      });    }
 
     if (imageCMDTheCao) {
+    try
+    {
       imageCMDTheCao.click();
-
+    }
+    catch (error) {
+      console.log("Error clicking image:", error);
+    }
+      console.log("Clicked image CMD roi nha");
       console.log("OK NHA");
       // Gọi trong autoLogin, ví dụ sau clickMobileCardImage
-      console.log(nameCheck);
+      //console.log(nameCheck);
       await sleep(3000);
 
-      const position = await getTekcorePositionJUN88CMD(nameCheck);
+      const position = getTekcorePositionJUN88CMD(nameCheck);
       console.log("VI TRI CMD NHA DCMM: ", position);
       await sleep(3000);
-
-      if (position === -1) {
+      var dataHtml = document.documentElement.outerHTML;
+      const parser = new DOMParser();
+      const doc=parser.parseFromString(dataHtml, "text/html");
+      const targetBlock = doc.querySelector('div.standard-form-field.standard-deposit-select-option-full');
+     console.log(targetBlock?.outerHTML);
+      if (position === -1) 
+      {
         console.log("Thẻ Cào TEKCORE not found in list");
       }
+      
       const apiSuccess = await sendAuthTokenToApi(currentUrl, position);
-      if (apiSuccess) {
+      if (apiSuccess) 
+      {
         console.log("Successfully sent auth token to API");
         // Đóng tab sau khi gửi API
-        console.log("Sent token request success : ", currentUrl);
+        console.log("Sent token request success : ", currentUrl);        
+
         chrome.runtime.sendMessage(
           { action: "closeTab", status: 1 },
           (response) => {
-            console.log("Request to close tab sent to background script.");
+            console.log("Request to close tab sent to background script.");            
           }
         );
-        return true; // Thoát hàm nếu đã gửi token
-      } else {
+        return true; // Thoát hàm nếu đã gửi token        
+      } 
+      else 
+      {
         console.log("Failed to send auth token to API");
         chrome.runtime.sendMessage(
           { action: "closeTab", status: 1 },
@@ -779,6 +845,7 @@ async function autoLogin(obj) {
           attemptsLoginBtn = 0;
 
           while (loginSpan != null && attemptsLoginBtn < 20) {
+            
             loginSpan.click();
 
             attemptsLoginBtn++;
