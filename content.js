@@ -89,7 +89,7 @@ async function solveCaptcha(base64Src) {
     try {
         // Loại bỏ prefix data:image
         base64Src = base64Src.split(",")[1]; // Lấy phần base64 sau dấu phẩy
-        console.log("Base64 source:", base64Src);
+        console.log("Base64 source:", base64Src);        
         // Gửi yêu cầu tới Google Cloud Vision API
         const apiKey = "AIzaSyDSKgzTCOFeDBpBpRLC1-L9PJvbbgdLxGE"; // Thay bằng API key thực tế của bạn
         const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
