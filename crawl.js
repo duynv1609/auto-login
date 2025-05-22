@@ -1,12 +1,12 @@
-const ENVIRONMENT = "local"; // Thay thành "production" khi deploy
+const ENVIRONMENT = "production"; // Thay thành "production" khi deploy
 
 const CONFIG = {
   local: {
-    API_BASE_URL: "http://192.168.1.206:8000",
-    LIST_VENDOR_API: "http://192.168.1.206:8000/api/list-vendor",
-    SEND_MESSAGE_BET_API: "http://192.168.1.206:8000/api/send-message-bet",
-    SENT_TOKEN_BET_API: "http://192.168.1.206:8000/api/token-bet-telegram",
-    UPDATE_TYPE_VENDOR: "http://192.168.1.206:8000/api/update-type-vendor",
+    API_BASE_URL: "https://bantkg.test",
+    LIST_VENDOR_API: "https://bantkg.test/api/list-vendor",
+    SEND_MESSAGE_BET_API: "https://bantkg.test/api/send-message-bet",
+    SENT_TOKEN_BET_API: "https://bantkg.test/api/token-bet-telegram",
+    UPDATE_TYPE_VENDOR: "https://bantkg.test/api/update-type-vendor",
   },
   // local: {
   //     API_BASE_URL: "192.168.1.206:8000",
