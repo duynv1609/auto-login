@@ -89,7 +89,6 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         
         if (status && data && data.length > 0) {
             cachedData = data;
-            localStorage.setItem("cachedData", JSON.stringify(data));
             console.log("Data fetched and cached:", cachedData);
         } else {
             console.error("Failed to fetch data or no data available");
@@ -164,21 +163,21 @@ async function sendCompletionApi() {
 }
 
 // Lắng nghe yêu cầu đóng tab từ content.js
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
     if (request.action === "getData") 
     {
         console.log("Sending cached data to content script:", cachedData);
         if(cachedData==null)
         {
-            console.log("Cached data is null, trying to fetch from localStorage");
-            const localStorageData = localStorage.getItem("cachedData");
-            if (localStorageData) {
-                cachedData = JSON.parse(localStorageData);
-                console.log("Fetched data from localStorage:", cachedData);
-            } else 
-            {
-                console.log("No data found in localStorage");
-            }
+             const [status, total, data] = await getAllData();
+        
+        if (status && data && data.length > 0) {
+            cachedData = data;
+            console.log("Data fetched and cached:", cachedData);
+        } else {
+            console.error("Failed to fetch data or no data available");
+            cachedData = [];
+        }
         }
         sendResponse({ data: cachedData || [] }); // Đảm bảo luôn gửi một mảng (không undefined)
     } else if (request.action === "closeTab" && sender.tab) {
