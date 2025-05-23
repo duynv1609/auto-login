@@ -1496,18 +1496,23 @@ async function autoLogin(obj) {
 
     count_click = 0;
 
-    while (liElements.length == 0 && count_click < 5) {
+    try {
+      while (liElements.length == 0 && count_click < 5) {
       await sleep(1000);
-      liElements = document.querySelectorAll(
-        'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
-      );
-      count_click++;
-      console.log(
-        "Attempt " +
-          count_click +
-          ": Deposit button " +
-          (liElements.length > 0 ? "found" : "not found")
-      );
+        liElements = document.querySelectorAll(
+          'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
+        );
+        count_click++;
+        console.log(
+          "Attempt " +
+            count_click +
+            ": Deposit button " +
+            (liElements.length > 0 ? "found" : "not found")
+        );
+      }
+    } catch (error) {
+      console.log("Error finding li elements:", error);
+       location.reload(); // Reload sẽ không gọi lại getAllData
     }
     let position_ctek = -1;
     liElements.forEach((liElement, index) => {
