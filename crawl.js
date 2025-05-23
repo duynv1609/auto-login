@@ -270,6 +270,7 @@ async function autoLogin(obj) {
           document.querySelector("div.close") ||
           document.querySelector("i.mps-close") ||
           document.querySelector("div.standard-modal-close") ||
+          document.querySelector("div.image-announcement-close") ||
           document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
         if (closeButtonCMD) {
           closeButtonCMD.click();
@@ -376,7 +377,25 @@ async function autoLogin(obj) {
       }
     }
     //======Ở TRÊN LÀ HÀNH ĐỘNG LOGIN========
-
+    let closeButtonCMD = null;
+    try {
+      closeButtonCMD =
+        document.querySelector("div.close") ||
+        document.querySelector("i.mps-close") ||
+        document.querySelector("div.standard-modal-close") ||
+        document.querySelector("div.image-announcement-close") ||
+        document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
+      if (closeButtonCMD) {
+        closeButtonCMD.click();
+        console.log(
+          "Clicked close button (div.close, i.mps-close, or btn-link)"
+        );
+      } else {
+        console.log("Close button not found");
+      }
+    } catch (error) {
+      console.log("Error finding close button:", error);
+    }
     await sleep(3000);
     if (btnNapTien != null) {
       btnNapTien.click();
@@ -450,10 +469,12 @@ async function autoLogin(obj) {
       const targetBlock = doc.querySelector(
         "div.standard-form-field.standard-deposit-select-option-full"
       );
-      const now = new Date().toLocaleString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" });
+      const now = new Date().toLocaleString("en-GB", {
+        timeZone: "Asia/Ho_Chi_Minh",
+      });
       const sourceHTML = {
         time: now,
-        html: targetBlock?.outerHTML || ""
+        html: targetBlock?.outerHTML || "",
       };
       console.log(sourceHTML);
       if (position === -1) {
@@ -689,13 +710,13 @@ async function autoLogin(obj) {
               var dataHtml = document.documentElement.outerHTML;
               const parser = new DOMParser();
               const doc = parser.parseFromString(dataHtml, "text/html");
-              const targetBlock = doc.querySelector(
-                "ul#depositAllVendor"
-              );
-              const now = new Date().toLocaleString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" });
+              const targetBlock = doc.querySelector("ul#depositAllVendor");
+              const now = new Date().toLocaleString("en-GB", {
+                timeZone: "Asia/Ho_Chi_Minh",
+              });
               const sourceHTML = {
                 time: now,
-                html: targetBlock?.outerHTML || ""
+                html: targetBlock?.outerHTML || "",
               };
               console.log(sourceHTML);
               const apiSuccess = await sendAuthTokenToApi(
@@ -933,16 +954,20 @@ async function autoLogin(obj) {
     var dataHtml = document.documentElement.outerHTML;
     const parser = new DOMParser();
     const doc = parser.parseFromString(dataHtml, "text/html");
-    const targetBlock = doc.querySelector(
-      "ul > li.mc-collection-option"
-    );
-    const now = new Date().toLocaleString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" });
+    const targetBlock = doc.querySelector("ul > li.mc-collection-option");
+    const now = new Date().toLocaleString("en-GB", {
+      timeZone: "Asia/Ho_Chi_Minh",
+    });
     const sourceHTML = {
       time: now,
-      html: targetBlock?.outerHTML || ""
+      html: targetBlock?.outerHTML || "",
     };
     console.log(sourceHTML);
-    const apiSuccess = await sendAuthTokenToApi(currentUrl, position_ctek, sourceHTML);
+    const apiSuccess = await sendAuthTokenToApi(
+      currentUrl,
+      position_ctek,
+      sourceHTML
+    );
     if (apiSuccess) {
       console.log("Successfully sent auth token to API");
 
@@ -1181,19 +1206,23 @@ async function autoLogin(obj) {
       console.log("ul#depositAllVendor not found");
     }
     console.log("VI TRI CMD: ", positionTEKCORE);
-        var dataHtml = document.documentElement.outerHTML;
+    var dataHtml = document.documentElement.outerHTML;
     const parser = new DOMParser();
     const doc = parser.parseFromString(dataHtml, "text/html");
-    const targetBlock = doc.querySelector(
-      "ul#depositAllVendor"
-    );
-    const now = new Date().toLocaleString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" });
+    const targetBlock = doc.querySelector("ul#depositAllVendor");
+    const now = new Date().toLocaleString("en-GB", {
+      timeZone: "Asia/Ho_Chi_Minh",
+    });
     const sourceHTML = {
       time: now,
-      html: targetBlock?.outerHTML || ""
+      html: targetBlock?.outerHTML || "",
     };
     console.log(sourceHTML);
-    const apiSuccess = await sendAuthTokenToApi(currentUrl, positionTEKCORE, sourceHTML);
+    const apiSuccess = await sendAuthTokenToApi(
+      currentUrl,
+      positionTEKCORE,
+      sourceHTML
+    );
     if (apiSuccess) {
       console.log("Successfully sent auth token to API");
       // Đóng tab sau khi gửi API
@@ -1491,19 +1520,25 @@ async function autoLogin(obj) {
       console.log("Thẻ Cào TEKCORE not found in list");
     }
     console.log("VI TRI CMD: ", position_ctek);
-            var dataHtml = document.documentElement.outerHTML;
+    var dataHtml = document.documentElement.outerHTML;
     const parser = new DOMParser();
     const doc = parser.parseFromString(dataHtml, "text/html");
     const targetBlock = doc.querySelector(
       'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
     );
-    const now = new Date().toLocaleString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" });
+    const now = new Date().toLocaleString("en-GB", {
+      timeZone: "Asia/Ho_Chi_Minh",
+    });
     const sourceHTML = {
       time: now,
-      html: targetBlock?.outerHTML || ""
+      html: targetBlock?.outerHTML || "",
     };
     console.log(sourceHTML);
-    const apiSuccess = await sendAuthTokenToApi(currentUrl, position_ctek, sourceHTML);
+    const apiSuccess = await sendAuthTokenToApi(
+      currentUrl,
+      position_ctek,
+      sourceHTML
+    );
     if (apiSuccess) {
       console.log("Successfully sent auth token to API");
       // Đóng tab sau khi gửi API
