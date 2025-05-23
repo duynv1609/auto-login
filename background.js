@@ -160,7 +160,7 @@ async function sendCompletionApi() {
            chrome.alarms.clear("loginExecute", () => {
                 console.log("Alarm loginExecute cleared!");
                 chrome.alarms.create("loginExecute", {
-                    delayInMinutes: 0,
+                    delayInMinutes: 45,
                     periodInMinutes: 45
                 });
                 console.log("Alarm loginExecute created again for 60 minutes later!");
