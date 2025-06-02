@@ -222,16 +222,16 @@ async function autoLogin(obj) {
   try {
     close_second_button = document.querySelector(
       'button.btn.btn-link[ng-click="$ctrl.ok()"]'
-    );
+    ) || document.querySelector('span[ng-click="$ctrl.ok()"]');
   } catch (error) {
     console.log("Error finding button:", error);
   }
 
   if (close_second_button != null) {
-    console.log("Button found, clicking it now!");
+    console.log("Button SECOND found, clicking it now!");
     close_second_button.click();
   }
-
+  await sleep(2000);
   let closeButton = null;
   try {
     closeButton =
@@ -240,9 +240,10 @@ async function autoLogin(obj) {
       document.querySelector("div.standard-modal-close") ||
       document.querySelector("div.tcg_modal_close") ||
       document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
+    document.querySelector('span[ng-click="$ctrl.ok()"]');
     if (closeButton) {
       closeButton.click();
-      console.log("Clicked close button (div.close, i.mps-close, or btn-link)");
+      console.log("Clicked SECOND close button (div.close, i.mps-close, or btn-link)");
     } else {
       console.log("Close button not found");
     }
@@ -910,7 +911,7 @@ async function autoLogin(obj) {
       }
     });
 
-    await sleep(1000);
+    await sleep(5000);
 
     const depositItems = document.querySelectorAll(".deposit-list-item");
 
@@ -945,7 +946,7 @@ async function autoLogin(obj) {
     });
     console.log(position_ctek, "TÌM ĐƯỢC VỊ TRÍ RỒI NHA DCMM");
 
-    await sleep(1000);
+    await sleep(3000);
 
     if (position_ctek === -1) {
       console.log("Thẻ Cào TEKCORE not found in list");
@@ -983,7 +984,8 @@ async function autoLogin(obj) {
       });
       return false;
     }
-  } else if (nameSite.includes("qq8876")) {
+  }
+  else if (nameSite.includes("qq8876")) {
     let loginButtonQ88 = null;
     let attempts = 0;
     while (!loginButtonQ88 && attempts < 3) {
@@ -1250,9 +1252,11 @@ async function autoLogin(obj) {
     let loginButtonToOpenForm789BET = null;
     let attempts = 0;
     while (!loginButtonToOpenForm789BET && attempts < 3) {
-      await sleep(1000);
+      await sleep(3000);
       loginButtonToOpenForm789BET = document.querySelector(
         'button[ng-click="$ctrl.openLoginModal()"]'
+      ) || document.querySelector(
+        'div[ng-click="$ctrl.openLoginModal()"]'
       );
       attempts++;
       console.log(
@@ -1427,11 +1431,60 @@ async function autoLogin(obj) {
 
     console.log("Url:" + currentUrl);
 
+
+    let close_second_button = null;
+
+  try {
+    close_second_button = document.querySelector(
+      'button.btn.btn-link[ng-click="$ctrl.ok()"]'
+    ) || document.querySelector('span[ng-click="$ctrl.ok()"]');
+  } catch (error) {
+    console.log("Error finding button:", error);
+  }
+
+  if (close_second_button != null) {
+    console.log("Button SECOND found, clicking it now!");
+    close_second_button.click();
+  }
+  await sleep(2000);
+  let closeButton = null;
+  try {
+    closeButton =
+      document.querySelector("div.close") ||
+      document.querySelector("i.mps-close") ||
+      document.querySelector("div.standard-modal-close") ||
+      document.querySelector("div.tcg_modal_close") ||
+      document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
+    document.querySelector('span[ng-click="$ctrl.ok()"]');
+    if (closeButton) {
+      closeButton.click();
+      console.log("Clicked SECOND close button (div.close, i.mps-close, or btn-link)");
+    } else {
+      console.log("Close button not found");
+    }
+  } catch (error) {
+    console.log("Error finding close button:", error);
+  }
+
+  await sleep(2000);
+
+  const spanButton = document.querySelector(
+    'span[ng-click="$ctrl.ok()"][translate="Common_Closed"].ng-scope'
+  );
+  if (spanButton) {
+    spanButton.click();
+    console.log("Clicked span with class ng-scope");
+  }
+
+
+
+
     if (
       siteNote == "SH232" ||
       siteNote == "HI8823" ||
       siteNote == "F8BET" ||
-      siteNote == "NEW88"
+      siteNote == "NEW88" ||
+      siteNote == "8KBET"
     ) {
       const deposit_btn = document.querySelector('button[ui-sref="deposit"]');
 
@@ -1649,6 +1702,13 @@ async function loginExecute() {
   const data = await new Promise((resolve) => {
     chrome.runtime.sendMessage({ action: "getData" }, (response) => {
       console.log("Received data from background.js:", response);
+      if (response == undefined) {
+        console.log("No data received or data is not an array, exiting");
+        chrome.runtime.sendMessage({ action: "getData" }, (response) => {
+          console.log("retry Get data");
+        });
+        location.reload();
+      }
       resolve(response.data || []);
     });
   });
