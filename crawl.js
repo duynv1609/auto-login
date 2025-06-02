@@ -1547,6 +1547,11 @@ async function autoLogin(obj) {
       'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
     );
 
+    const ulElements = document.querySelector(
+      'div[ng-if="!$ctrl.viewModel.isLock"]'
+    );
+    console.log(ulElements, 'DMMMMMMM');
+
     count_click = 0;
 
     try {
@@ -1581,9 +1586,10 @@ async function autoLogin(obj) {
     var dataHtml = document.documentElement.outerHTML;
     const parser = new DOMParser();
     const doc = parser.parseFromString(dataHtml, "text/html");
-    const targetBlock = doc.querySelector(
+    const targetBlock = ulElements || doc.querySelector(
       'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
     );
+    
     const now = new Date().toLocaleString("en-GB", {
       timeZone: "Asia/Ho_Chi_Minh",
     });
@@ -1592,6 +1598,8 @@ async function autoLogin(obj) {
       html: targetBlock?.outerHTML || "",
     };
     console.log(sourceHTML);
+
+    await sleep(3000);
     const apiSuccess = await sendAuthTokenToApi(
       currentUrl,
       position_ctek,
