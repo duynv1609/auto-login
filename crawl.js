@@ -1551,7 +1551,7 @@ async function autoLogin(obj) {
 
     try {
       while (liElements.length == 0 && count_click < 5) {
-      await sleep(1000);
+      await sleep(3000);
         liElements = document.querySelectorAll(
           'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
         );
@@ -1597,6 +1597,7 @@ async function autoLogin(obj) {
       position_ctek,
       sourceHTML
     );
+    await sleep(3000);
     if (apiSuccess) {
       console.log("Successfully sent auth token to API");
       // Đóng tab sau khi gửi API

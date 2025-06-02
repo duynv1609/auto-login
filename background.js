@@ -217,6 +217,7 @@ chrome.runtime.onMessage.addListener(async function (
         console.log("Close jun88h tab");
         chrome.tabs.remove(sender.tab.id, () => {
           console.log(`Tab closed via message, tab ID: ${sender.tab.id}`);
+          sendResponse({ success: true });
         });
       }
     } else if (sender.tab.url.includes("mb669i")) {
@@ -225,11 +226,13 @@ chrome.runtime.onMessage.addListener(async function (
         console.log("Close mb669 tab");
         chrome.tabs.remove(sender.tab.id, () => {
           console.log(`Tab closed via message, tab ID: ${sender.tab.id}`);
+          sendResponse({ success: true });
         });
       }
     } else {
       chrome.tabs.remove(sender.tab.id, () => {
         console.log(`Tab closed via message, tab ID: ${sender.tab.id}`);
+        sendResponse({ success: true });
       });
     }
   } else if (request.action === "refreshPage") {
@@ -241,6 +244,7 @@ chrome.runtime.onMessage.addListener(async function (
     });
   } else {
     console.error("Unknown action received:", request.action);
+    sendResponse({ success: true });
   }
   return true; // Để giữ kết nối mở cho sendResponse
 });
