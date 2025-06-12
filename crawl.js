@@ -159,7 +159,7 @@ function getTekcorePositionJUN88CMD(nameCheck) {
       ".standard-bank-container"
     );
     bankContainers.forEach((container, index) => {
-      if (container.textContent.includes(nameCheck)) {
+      if (container.textContent.includes(nameCheck) || container.textContent.includes("CTEK")) {
         position = index + 1;
         console.log(
           `Found "Thẻ cào TEKCORE" in standard-bank-container at position: ${position}`
@@ -690,7 +690,7 @@ async function autoLogin(obj) {
                   const channelDiv = li.querySelector("div.channel-wrap");
                   if (
                     channelDiv &&
-                    channelDiv.getAttribute("value") === nameCheck
+                    (channelDiv.getAttribute("value") === nameCheck || channelDiv.getAttribute("value") === "CTEK")
                   ) {
                     channelDiv.click();
                     positionTEKCORE = i + 1; // vị trí bắt đầu từ 1
@@ -944,7 +944,7 @@ async function autoLogin(obj) {
     listItems.forEach((item, index) => {
       const nameDiv = item.querySelector(".mc-collection-name");
 
-      if (nameDiv && nameDiv.textContent.trim().includes(nameCheck)) {
+      if (nameDiv && (nameDiv.textContent.trim().includes(nameCheck) || nameDiv.textContent.trim().includes("CTEK"))) {
         position_ctek = index + 1; // Index starts from 0
       }
     });
@@ -1195,7 +1195,7 @@ async function autoLogin(obj) {
       for (let i = 0; i < liList.length; i++) {
         const li = liList[i];
         const channelDiv = li.querySelector("div.channel-wrap");
-        if (channelDiv && channelDiv.getAttribute("value") === nameCheck) {
+        if (channelDiv && (channelDiv.getAttribute("value") === nameCheck || channelDiv.getAttribute("value") === "CTEK")) {
           channelDiv.click();
           positionTEKCORE = i + 1; // vị trí bắt đầu từ 1
           console.log(
@@ -1581,7 +1581,7 @@ async function autoLogin(obj) {
     let position_ctek = -1;
     liElements.forEach((liElement, index) => {
       const h3Element = liElement.querySelector("h3");
-      if (h3Element && h3Element.textContent.trim().includes(nameCheck)) {
+      if (h3Element && (h3Element.textContent.trim().includes(nameCheck) || h3Element.textContent.trim().includes("CTEK"))) {
         position_ctek = index + 1;
       }
     });
