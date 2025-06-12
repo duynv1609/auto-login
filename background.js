@@ -39,7 +39,11 @@ const getAllData = async () => {
 
   const list_data = data.data;
 
-  return [status, total, list_data];
+  const block_domains = data.blocks;
+
+  const count_blocks = data.count_blocks;
+
+  return [status, total, list_data, block_domains, count_blocks];
 };
 
 // chrome.webRequest.onHeadersReceived.addListener(
@@ -83,7 +87,7 @@ let cachedData = null;
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === "loginExecute") {
     console.log("Alarm triggered, opening tabs");
-    const [status, total, data] = await getAllData();
+    const [status, total, data, block, count_blocks] = await getAllData();
 
     if (status && data && data.length > 0) {
       cachedData = data;
@@ -120,7 +124,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 });
 
 // Lắng nghe sự kiện đóng tab
-chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
+chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
   // Xóa tab ID khỏi mảng khi tab bị đóng
   const index = openedTabs.indexOf(tabId);
   if (index > -1) {
@@ -133,8 +137,30 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
   // Kiểm tra nếu tất cả các tab đã đóng
   if (openedTabs.length === 0) {
     console.log("All tabs have been closed!");
-    // Thực hiện hành động khi tất cả các tab đã đóng
-    sendCompletionApi();
+    //================1.kiểm tra xem có trang nào bị block không
+    console.log("BLOCK SITE!!! Alarm triggered to check block site");
+    const [status, total, data, block, count_blocks] = await getAllData();
+
+    if (status && block && count_blocks > 1) {
+      cachedDataBlock = block;
+      console.log("Data block fetched and cached:", cachedDataBlock);
+      const urls = [];
+      for (let i = 0; i < count_blocks; i++) {
+        var obj = block[i];
+        var url = obj.domain;
+        urls.push(url);
+      }
+
+      urls.forEach((url) => {
+        chrome.tabs.create({ url: url }, (tab) => {
+          console.log("Opened block site tab, tab ID:", tab.id);
+          openedTabs.push(tab.id); // Thêm tab ID vào mảng
+        });
+      });
+    } else {
+      // Thực hiện hành động khi tất cả các tab đã đóng
+      sendCompletionApi();
+    }
   }
 });
 

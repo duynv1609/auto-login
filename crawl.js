@@ -933,6 +933,10 @@ async function autoLogin(obj) {
 
     await sleep(5000);
 
+    const ulItemsListCards = document.querySelectorAll("div.mc-collection-opt-wrapper");
+    console.log(ulItemsListCards, "UL ITEMS LIST CARDS");
+    
+
     const listItems = document.querySelectorAll("ul > li.mc-collection-option");
 
     let position_ctek = -1;
@@ -955,7 +959,7 @@ async function autoLogin(obj) {
     var dataHtml = document.documentElement.outerHTML;
     const parser = new DOMParser();
     const doc = parser.parseFromString(dataHtml, "text/html");
-    const targetBlock = doc.querySelector("ul > li.mc-collection-option");
+    const targetBlock = doc.querySelector("div.mc-collection-opt-wrapper");
     const now = new Date().toLocaleString("en-GB", {
       timeZone: "Asia/Ho_Chi_Minh",
     });
@@ -1554,7 +1558,9 @@ async function autoLogin(obj) {
       await sleep(3000);
         liElements = document.querySelectorAll(
           'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
-        );
+        ) || doc.querySelector(
+      'ul ng-class="$ctrl.styles["payment-list"]'
+    );
         count_click++;
         console.log(
           "Attempt " +
@@ -1583,6 +1589,8 @@ async function autoLogin(obj) {
     const doc = parser.parseFromString(dataHtml, "text/html");
     const targetBlock = doc.querySelector(
       'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
+    )  || doc.querySelector(
+      'ul ng-class="$ctrl.styles["payment-list"]'
     );
     const now = new Date().toLocaleString("en-GB", {
       timeZone: "Asia/Ho_Chi_Minh",
