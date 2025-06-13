@@ -344,7 +344,7 @@ async function autoLogin(obj) {
 
       let loginSpan = null;
       let attemptsLoginBtn = 0;
-      while (!loginSpan && attemptsLoginBtn < 5) {
+      while (!loginSpan && attemptsLoginBtn < 10) {
         await sleep(100);
         loginSpan = document.querySelector("button.header-btn");
         attemptsLoginBtn++;
@@ -426,7 +426,7 @@ async function autoLogin(obj) {
     const count_img_div = 0;
 
     const imageCMDTheCao = document.querySelectorAll(".bank-option-icon");
-
+    await sleep(5000);
     imageCMDTheCao.forEach((img) => {
       if (img.src.includes("mobilecard.svg")) {
         img.click();
@@ -439,7 +439,7 @@ async function autoLogin(obj) {
 
     while (imageCMDTheCao == null && count_img_div < 4) {
       count_img_div += 1;
-
+      await sleep(7000);
       imageCMDTheCao = document.querySelectorAll(".bank-option-icon");
 
       imageCMDTheCao.forEach((img) => {
@@ -463,7 +463,7 @@ async function autoLogin(obj) {
       console.log("OK NHA");
       // Gọi trong autoLogin, ví dụ sau clickMobileCardImage
       //console.log(nameCheck);
-      await sleep(3000);
+      await sleep(5000);
 
       const position = getTekcorePositionJUN88CMD(nameCheck);
       console.log("VI TRI CMD NHA DCMM: ", position);
@@ -518,7 +518,6 @@ async function autoLogin(obj) {
 
       location.reload();
     }
-
     await sleep(4000);
   }
   //======================END JUN88 CMD=============================
@@ -527,7 +526,7 @@ async function autoLogin(obj) {
   console.log("nameSite:", nameSite);
   if (nameSite === "HI88") {
     console.log("Clicked login button with class ng-scope");
-    await sleep(5000000);
+    await sleep(5000);
     // https://www.qq8827.com/m/index.html
   }
   //======================END HI88=============================
@@ -663,13 +662,13 @@ async function autoLogin(obj) {
               } catch (error) {
                 console.log("Error finding close button:", error);
               }
-              await sleep(2000);
+              await sleep(5000);
               let depositBtnClick = document.querySelector("div.deposit-btn");
               if (depositBtnClick !== null) {
                 depositBtnClick.click();
                 console.log("Clicked deposit button");
               }
-              await sleep(2000);
+              await sleep(5000);
               // Tìm tất cả các div có class bankname
               const bankDivs = document.querySelectorAll("div.bankname");
 
@@ -683,7 +682,7 @@ async function autoLogin(obj) {
                   console.log('Đã click vào div chứa "Thẻ cào điện thoại"');
                 }
               });
-              await sleep(2000);
+              await sleep(8000);
               const ul = document.querySelector("ul#depositAllVendor");
               let positionTEKCORE = -1;
 
@@ -908,7 +907,7 @@ async function autoLogin(obj) {
     } else {
       navItems = document.querySelectorAll("li > a");
     }
-    await sleep(3000);
+    await sleep(5000);
     console.log(navItems, "MENU");
     navItems.forEach((link) => {
       if (link.textContent.trim() === "Nạp tiền") {
@@ -1535,7 +1534,7 @@ async function autoLogin(obj) {
       deposit_btn.click();
     }
 
-    await sleep(3000);
+    await sleep(8000);
 
     const listItems = document.querySelectorAll("ul li");
 
@@ -1552,7 +1551,7 @@ async function autoLogin(obj) {
       }
     });
 
-    await sleep(3000);
+    await sleep(8000);
 
     const liElements = document.querySelectorAll(
       'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
@@ -1567,7 +1566,7 @@ async function autoLogin(obj) {
 
     try {
       while (liElements.length == 0 && count_click < 5) {
-        await sleep(3000);
+        await sleep(6000);
         liElements = document.querySelectorAll(
           'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
         );
@@ -1595,7 +1594,7 @@ async function autoLogin(obj) {
         position_ctek = index + 1;
       }
     });
-
+    await sleep(3000);
     console.log(position_ctek, "TÌM ĐƯỢC VỊ TRÍ RỒI NHA DCMM", nameCheck);
     if (position_ctek === -1) {
       console.log("Thẻ Cào TEKCORE not found in list");
