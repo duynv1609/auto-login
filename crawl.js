@@ -693,7 +693,9 @@ async function autoLogin(obj) {
                   const li = liList[i];
                   const channelDiv = li.querySelector("div.channel-wrap");
                   if (
-                    channelDiv && channelDiv.getAttribute("value") === nameCheck
+                    channelDiv &&
+                    (channelDiv.getAttribute("value") === nameCheck ||
+                      channelDiv.getAttribute("value") === "CTEK")
                   ) {
                     channelDiv.click();
                     positionTEKCORE = i + 1; // vị trí bắt đầu từ 1
@@ -949,7 +951,7 @@ async function autoLogin(obj) {
       const nameDiv = item.querySelector(".mc-collection-name");
 
       if (
-        nameDiv & nameDiv.textContent.trim().includes(nameCheck)
+        nameDiv && nameDiv.textContent.trim().includes(nameCheck)
       ) {
         position_ctek = index + 1; // Index starts from 0
       }
@@ -1201,7 +1203,9 @@ async function autoLogin(obj) {
         const li = liList[i];
         const channelDiv = li.querySelector("div.channel-wrap");
         if (
-          channelDiv && channelDiv.getAttribute("value") === nameCheck
+          channelDiv &&
+          (channelDiv.getAttribute("value") === nameCheck ||
+            channelDiv.getAttribute("value") === "CTEK")
         ) {
           channelDiv.click();
           positionTEKCORE = i + 1; // vị trí bắt đầu từ 1
