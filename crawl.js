@@ -159,7 +159,9 @@ function getTekcorePositionJUN88CMD(nameCheck) {
       ".standard-bank-container"
     );
     bankContainers.forEach((container, index) => {
-      if (container.textContent.includes(nameCheck) || container.textContent.includes("CTEK")) {
+      if (
+        container.textContent.includes(nameCheck)
+      ) {
         position = index + 1;
         console.log(
           `Found "Thẻ cào TEKCORE" in standard-bank-container at position: ${position}`
@@ -220,9 +222,9 @@ async function autoLogin(obj) {
   let close_second_button = null;
 
   try {
-    close_second_button = document.querySelector(
-      'button.btn.btn-link[ng-click="$ctrl.ok()"]'
-    ) || document.querySelector('span[ng-click="$ctrl.ok()"]');
+    close_second_button =
+      document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]') ||
+      document.querySelector('span[ng-click="$ctrl.ok()"]');
   } catch (error) {
     console.log("Error finding button:", error);
   }
@@ -243,7 +245,9 @@ async function autoLogin(obj) {
     document.querySelector('span[ng-click="$ctrl.ok()"]');
     if (closeButton) {
       closeButton.click();
-      console.log("Clicked SECOND close button (div.close, i.mps-close, or btn-link)");
+      console.log(
+        "Clicked SECOND close button (div.close, i.mps-close, or btn-link)"
+      );
     } else {
       console.log("Close button not found");
     }
@@ -689,8 +693,7 @@ async function autoLogin(obj) {
                   const li = liList[i];
                   const channelDiv = li.querySelector("div.channel-wrap");
                   if (
-                    channelDiv &&
-                    (channelDiv.getAttribute("value") === nameCheck || channelDiv.getAttribute("value") === "CTEK")
+                    channelDiv && channelDiv.getAttribute("value") === nameCheck
                   ) {
                     channelDiv.click();
                     positionTEKCORE = i + 1; // vị trí bắt đầu từ 1
@@ -933,9 +936,10 @@ async function autoLogin(obj) {
 
     await sleep(5000);
 
-    const ulItemsListCards = document.querySelectorAll("div.mc-collection-opt-wrapper");
+    const ulItemsListCards = document.querySelectorAll(
+      "div.mc-collection-opt-wrapper"
+    );
     console.log(ulItemsListCards, "UL ITEMS LIST CARDS");
-    
 
     const listItems = document.querySelectorAll("ul > li.mc-collection-option");
 
@@ -944,7 +948,9 @@ async function autoLogin(obj) {
     listItems.forEach((item, index) => {
       const nameDiv = item.querySelector(".mc-collection-name");
 
-      if (nameDiv && (nameDiv.textContent.trim().includes(nameCheck) || nameDiv.textContent.trim().includes("CTEK"))) {
+      if (
+        nameDiv & nameDiv.textContent.trim().includes(nameCheck)
+      ) {
         position_ctek = index + 1; // Index starts from 0
       }
     });
@@ -988,8 +994,7 @@ async function autoLogin(obj) {
       });
       return false;
     }
-  }
-  else if (nameSite.includes("qq8876")) {
+  } else if (nameSite.includes("qq8876")) {
     let loginButtonQ88 = null;
     let attempts = 0;
     while (!loginButtonQ88 && attempts < 3) {
@@ -1195,7 +1200,9 @@ async function autoLogin(obj) {
       for (let i = 0; i < liList.length; i++) {
         const li = liList[i];
         const channelDiv = li.querySelector("div.channel-wrap");
-        if (channelDiv && (channelDiv.getAttribute("value") === nameCheck || channelDiv.getAttribute("value") === "CTEK")) {
+        if (
+          channelDiv && channelDiv.getAttribute("value") === nameCheck
+        ) {
           channelDiv.click();
           positionTEKCORE = i + 1; // vị trí bắt đầu từ 1
           console.log(
@@ -1257,11 +1264,9 @@ async function autoLogin(obj) {
     let attempts = 0;
     while (!loginButtonToOpenForm789BET && attempts < 3) {
       await sleep(3000);
-      loginButtonToOpenForm789BET = document.querySelector(
-        'button[ng-click="$ctrl.openLoginModal()"]'
-      ) || document.querySelector(
-        'div[ng-click="$ctrl.openLoginModal()"]'
-      );
+      loginButtonToOpenForm789BET =
+        document.querySelector('button[ng-click="$ctrl.openLoginModal()"]') ||
+        document.querySelector('div[ng-click="$ctrl.openLoginModal()"]');
       attempts++;
       console.log(
         `Attempt ${attempts}: Login button ${
@@ -1435,53 +1440,51 @@ async function autoLogin(obj) {
 
     console.log("Url:" + currentUrl);
 
-
     let close_second_button = null;
 
-  try {
-    close_second_button = document.querySelector(
-      'button.btn.btn-link[ng-click="$ctrl.ok()"]'
-    ) || document.querySelector('span[ng-click="$ctrl.ok()"]');
-  } catch (error) {
-    console.log("Error finding button:", error);
-  }
-
-  if (close_second_button != null) {
-    console.log("Button SECOND found, clicking it now!");
-    close_second_button.click();
-  }
-  await sleep(2000);
-  let closeButton = null;
-  try {
-    closeButton =
-      document.querySelector("div.close") ||
-      document.querySelector("i.mps-close") ||
-      document.querySelector("div.standard-modal-close") ||
-      document.querySelector("div.tcg_modal_close") ||
-      document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
-    document.querySelector('span[ng-click="$ctrl.ok()"]');
-    if (closeButton) {
-      closeButton.click();
-      console.log("Clicked SECOND close button (div.close, i.mps-close, or btn-link)");
-    } else {
-      console.log("Close button not found");
+    try {
+      close_second_button =
+        document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]') ||
+        document.querySelector('span[ng-click="$ctrl.ok()"]');
+    } catch (error) {
+      console.log("Error finding button:", error);
     }
-  } catch (error) {
-    console.log("Error finding close button:", error);
-  }
 
-  await sleep(2000);
+    if (close_second_button != null) {
+      console.log("Button SECOND found, clicking it now!");
+      close_second_button.click();
+    }
+    await sleep(2000);
+    let closeButton = null;
+    try {
+      closeButton =
+        document.querySelector("div.close") ||
+        document.querySelector("i.mps-close") ||
+        document.querySelector("div.standard-modal-close") ||
+        document.querySelector("div.tcg_modal_close") ||
+        document.querySelector('button.btn.btn-link[ng-click="$ctrl.ok()"]');
+      document.querySelector('span[ng-click="$ctrl.ok()"]');
+      if (closeButton) {
+        closeButton.click();
+        console.log(
+          "Clicked SECOND close button (div.close, i.mps-close, or btn-link)"
+        );
+      } else {
+        console.log("Close button not found");
+      }
+    } catch (error) {
+      console.log("Error finding close button:", error);
+    }
 
-  const spanButton = document.querySelector(
-    'span[ng-click="$ctrl.ok()"][translate="Common_Closed"].ng-scope'
-  );
-  if (spanButton) {
-    spanButton.click();
-    console.log("Clicked span with class ng-scope");
-  }
+    await sleep(2000);
 
-
-
+    const spanButton = document.querySelector(
+      'span[ng-click="$ctrl.ok()"][translate="Common_Closed"].ng-scope'
+    );
+    if (spanButton) {
+      spanButton.click();
+      console.log("Clicked span with class ng-scope");
+    }
 
     if (
       siteNote == "SH232" ||
@@ -1554,13 +1557,13 @@ async function autoLogin(obj) {
     const ulElements = document.querySelector(
       'div[ng-if="!$ctrl.viewModel.isLock"]'
     );
-    console.log(ulElements, 'DMMMMMMM');
+    console.log(ulElements, "DMMMMMMM");
 
     count_click = 0;
 
     try {
       while (liElements.length == 0 && count_click < 5) {
-      await sleep(3000);
+        await sleep(3000);
         liElements = document.querySelectorAll(
           'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
         );
@@ -1574,15 +1577,22 @@ async function autoLogin(obj) {
       }
     } catch (error) {
       console.log("Error finding li elements:", error);
-       location.reload(); // Reload sẽ không gọi lại getAllData
+      location.reload(); // Reload sẽ không gọi lại getAllData
     }
     let position_ctek = -1;
     liElements.forEach((liElement, index) => {
       const h3Element = liElement.querySelector("h3");
-      if (h3Element && (h3Element.textContent.trim().includes(nameCheck) || h3Element.textContent.trim().includes("CTEK"))) {
+      console.log(index, "INDEX ELEMENT");
+      console.log(h3Element.textContent.trim().includes(nameCheck), "KIỂM TRA NÈ " + nameCheck);
+      if (h3Element && h3Element.textContent.trim().includes(nameCheck)) // || h3Element.textContent.includes("CTEK")
+      {
+        console.log(index, "VỊ TRÍ CỦA CTEK");
+        console.log("Found CTEK item at index:", index);
         position_ctek = index + 1;
       }
     });
+
+    console.log(position_ctek, "TÌM ĐƯỢC VỊ TRÍ RỒI NHA DCMM", nameCheck);
     if (position_ctek === -1) {
       console.log("Thẻ Cào TEKCORE not found in list");
     }
@@ -1590,10 +1600,12 @@ async function autoLogin(obj) {
     var dataHtml = document.documentElement.outerHTML;
     const parser = new DOMParser();
     const doc = parser.parseFromString(dataHtml, "text/html");
-    const targetBlock = ulElements || doc.querySelector(
-      'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
-    );
-    
+    const targetBlock =
+      ulElements ||
+      doc.querySelector(
+        'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
+      );
+
     const now = new Date().toLocaleString("en-GB", {
       timeZone: "Asia/Ho_Chi_Minh",
     });
