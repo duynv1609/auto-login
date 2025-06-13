@@ -1563,9 +1563,7 @@ async function autoLogin(obj) {
       await sleep(3000);
         liElements = document.querySelectorAll(
           'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
-        ) || doc.querySelector(
-      'ul ng-class="$ctrl.styles["payment-list"]'
-    );
+        );
         count_click++;
         console.log(
           "Attempt " +
@@ -1594,8 +1592,6 @@ async function autoLogin(obj) {
     const doc = parser.parseFromString(dataHtml, "text/html");
     const targetBlock = ulElements || doc.querySelector(
       'ul li[ng-repeat="payment in $ctrl.viewModel.paymentList track by $index"]'
-    )  || doc.querySelector(
-      'ul ng-class="$ctrl.styles["payment-list"]'
     );
     
     const now = new Date().toLocaleString("en-GB", {
