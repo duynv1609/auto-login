@@ -132,8 +132,8 @@ async function solveCaptcha(base64Src) {
     ) {
       const captchaText =
         data.responses[0].textAnnotations[0].description.trim();
-      console.log("CAPTCHA text:", captchaText);
-      return captchaText.trim();
+      console.log("CAPTCHA text:", captchaText, captchaText.replace(/\s+/g, ""));
+      return captchaText.replace(/\s+/g, ""); // Loại bỏ khoảng trắng
     } else {
       chrome.runtime.sendMessage({ action: "closeTab" }, (response) => {
         console.log("Request to close tab sent to background script.");
@@ -616,7 +616,7 @@ async function autoLogin(obj) {
         await sleep(2000);
         if (base64Src && base64Src.startsWith("data:image/")) {
           const captchaText = await solveCaptcha(base64Src);
-          // await sleep(200000000); //TEST
+          await sleep(2000); //TEST
           // const captchaText = '45455';
           // console.log("CAPTCHA TEXT la:", captchaText);
 
@@ -1076,7 +1076,7 @@ async function autoLogin(obj) {
         await sleep(2000);
         if (base64Src && base64Src.startsWith("data:image/")) {
           const captchaText = await solveCaptcha(base64Src);
-          // await sleep(200000000); //TEST
+          await sleep(2000); //TEST
           // const captchaText = '45455';
           // console.log("CAPTCHA TEXT la:", captchaText);
 
